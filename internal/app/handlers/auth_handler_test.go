@@ -174,7 +174,6 @@ func TestHandler_AuthUser(t *testing.T) {
 				JWTH:    tt.fields.JWTH,
 			}
 			h.AuthUser(tt.args.w, tt.args.r)
-			defer tt.args.w.Result().Body.Close()
 
 			assert.Equal(t, tt.statusWant, tt.args.w.Code, "HTTP status is wrong")
 
@@ -187,6 +186,7 @@ func TestHandler_AuthUser(t *testing.T) {
 						assert.Equal(t, correctJWTString, cookie.Value)
 					}
 				}
+				tt.args.w.Result().Body.Close()
 				assert.Equal(t, true, wasJWTFound, "JWT cookie wasn`t found")
 			}
 		})
