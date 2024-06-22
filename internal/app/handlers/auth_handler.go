@@ -10,7 +10,7 @@ import (
 	g_errors "yandex_gophermart/pkg/errors"
 )
 
-func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) AuthUser(w http.ResponseWriter, r *http.Request) {
 	//getting user data
 	bodyBytes, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -27,12 +27,12 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//creating user
-	uID, err := h.Storage.SaveUser(uData.Login, uData.Password, r.Context())
-	if errors.Is(err, g_errors.MakeErrUserAlreadyExists()) {
-		h.Logger.Infof("user create error: %v", err.Error())
-		w.WriteHeader(http.StatusConflict)
-		_, err := w.Write([]byte("this user already exists"))
+	//checking user
+	uID, err := h.Storage.CheckUser(uData.Login, uData.Password, r.Context())
+	if errors.Is(err, g_errors.MakeErrUserNotFound()) {
+		h.Logger.Infof("auth error: %v", err.Error())
+		w.WriteHeader(http.StatusUnauthorized)
+		_, err := w.Write([]byte("auth error"))
 		if err != nil {
 			h.Logger.Errorf("response write err: %v", err.Error())
 			return
