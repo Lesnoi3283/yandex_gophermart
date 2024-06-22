@@ -1,4 +1,4 @@
-package gophermartErrors
+package gophermarterrors
 
 import "errors"
 
