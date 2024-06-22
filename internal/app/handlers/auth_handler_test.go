@@ -13,9 +13,9 @@ import (
 	"net/http/httptest"
 	"testing"
 	mock_handlers "yandex_gophermart/internal/app/handlers/mocks"
-	"yandex_gophermart/pkg/Security"
 	"yandex_gophermart/pkg/entities"
 	gophermart_errors "yandex_gophermart/pkg/errors"
+	"yandex_gophermart/pkg/security"
 )
 
 func TestHandler_AuthUser(t *testing.T) {
@@ -174,6 +174,7 @@ func TestHandler_AuthUser(t *testing.T) {
 				JWTH:    tt.fields.JWTH,
 			}
 			h.AuthUser(tt.args.w, tt.args.r)
+			defer tt.args.w.Result().Body.Close()
 
 			assert.Equal(t, tt.statusWant, tt.args.w.Code, "HTTP status is wrong")
 
@@ -181,7 +182,7 @@ func TestHandler_AuthUser(t *testing.T) {
 				wasJWTFound := false
 				cookies := tt.args.w.Result().Cookies()
 				for _, cookie := range cookies {
-					if cookie.Name == Security.JWTCookieName {
+					if cookie.Name == security.JWTCookieName {
 						wasJWTFound = true
 						assert.Equal(t, correctJWTString, cookie.Value)
 					}

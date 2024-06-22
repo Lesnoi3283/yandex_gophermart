@@ -5,9 +5,9 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"yandex_gophermart/pkg/Security"
 	"yandex_gophermart/pkg/entities"
 	g_errors "yandex_gophermart/pkg/errors"
+	"yandex_gophermart/pkg/security"
 )
 
 func (h *Handler) AuthUser(w http.ResponseWriter, r *http.Request) {
@@ -49,11 +49,10 @@ func (h *Handler) AuthUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:  Security.JWTCookieName,
+		Name:  security.JWTCookieName,
 		Value: jwtString,
 	})
 
 	//return
 	w.WriteHeader(http.StatusOK)
-	return
 }

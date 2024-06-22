@@ -1,4 +1,4 @@
-package gophermart_errors
+package gophermartErrors
 
 import "errors"
 
@@ -16,7 +16,7 @@ func MakeErrUserNotFound() error {
 	return errUserNotFound
 }
 
-//Security errors
+//security errors
 
 var errJWTTokenIsNotValid = errors.New("jwt token is not valid")
 
