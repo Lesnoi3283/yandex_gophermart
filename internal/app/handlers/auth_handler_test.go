@@ -180,7 +180,7 @@ func TestHandler_AuthUser(t *testing.T) {
 			if tt.checkJWT {
 				wasJWTFound := false
 				cookies := tt.args.w.Result().Cookies()
-				defer tt.args.w.Result().Body.Close()
+				tt.args.w.Result().Body.Close()
 				for _, cookie := range cookies {
 					if cookie.Name == security.JWTCookieName {
 						wasJWTFound = true
