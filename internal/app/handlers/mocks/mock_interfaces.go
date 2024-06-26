@@ -7,6 +7,7 @@ package mock_handlers
 import (
 	context "context"
 	reflect "reflect"
+	entities "yandex_gophermart/pkg/entities"
 
 	gomock "github.com/golang/mock/gomock"
 )
@@ -47,6 +48,21 @@ func (m *MockStorageInt) CheckUser(arg0, arg1 string, arg2 context.Context) (int
 func (mr *MockStorageIntMockRecorder) CheckUser(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUser", reflect.TypeOf((*MockStorageInt)(nil).CheckUser), arg0, arg1, arg2)
+}
+
+// GetOrdersList mocks base method.
+func (m *MockStorageInt) GetOrdersList(arg0 int, arg1 context.Context) ([]entities.OrderData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOrdersList", arg0, arg1)
+	ret0, _ := ret[0].([]entities.OrderData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOrdersList indicates an expected call of GetOrdersList.
+func (mr *MockStorageIntMockRecorder) GetOrdersList(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrdersList", reflect.TypeOf((*MockStorageInt)(nil).GetOrdersList), arg0, arg1)
 }
 
 // SaveNewOrder mocks base method.

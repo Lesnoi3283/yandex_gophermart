@@ -41,8 +41,8 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	userIDInt, ok := userID.(int)
 	if !ok {
-		h.Logger.Infof("userID is not an int")
-		w.WriteHeader(http.StatusBadRequest)
+		h.Logger.Error("userID is not an int")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
