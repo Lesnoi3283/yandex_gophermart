@@ -33,7 +33,7 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//get userID
-	userID := r.Context().Value("userID")
+	userID := r.Context().Value(UserIDContextKey)
 	if userID == nil {
 		h.Logger.Infof("user id wasn`t found in ctx")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -60,5 +60,4 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	//return
 	w.WriteHeader(http.StatusAccepted)
-	return
 }

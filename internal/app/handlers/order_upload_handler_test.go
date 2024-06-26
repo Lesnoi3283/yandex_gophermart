@@ -56,7 +56,7 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderID)).WithContext(context.WithValue(context.Background(), "userID", correctUserID)),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderID)).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusAccepted,
 		},
@@ -72,7 +72,7 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderID)).WithContext(context.WithValue(context.Background(), "userID", correctUserID)),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderID)).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusOK,
 		},
@@ -88,7 +88,7 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderID)).WithContext(context.WithValue(context.Background(), "userID", correctUserID)),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderID)).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusConflict,
 		},
@@ -103,7 +103,7 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader([]byte("123sometext123"))).WithContext(context.WithValue(context.Background(), "userID", correctUserID)),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader([]byte("123sometext123"))).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusUnprocessableEntity,
 		},
@@ -118,7 +118,7 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader([]byte(""))).WithContext(context.WithValue(context.Background(), "userID", correctUserID)),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader([]byte(""))).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusBadRequest,
 		},

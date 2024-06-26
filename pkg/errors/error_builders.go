@@ -16,13 +16,13 @@ func MakeErrUserNotFound() error {
 	return errUserNotFound
 }
 
-var errThisOrderWasUploadedByDifferentUser error = errors.New("This order was uploaded by different user")
+var errThisOrderWasUploadedByDifferentUser error = errors.New("this order was uploaded by different user")
 
 func MakeErrThisOrderWasUploadedByDifferentUser() error {
 	return errThisOrderWasUploadedByDifferentUser
 }
 
-var errUserHasAlreadyUploadedThisOrder error = errors.New("User has already uploaded this order")
+var errUserHasAlreadyUploadedThisOrder error = errors.New("user has already uploaded this order")
 
 func MakeErrUserHasAlreadyUploadedThisOrder() error {
 	return errUserHasAlreadyUploadedThisOrder
