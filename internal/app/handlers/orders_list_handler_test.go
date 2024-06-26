@@ -34,14 +34,14 @@ func TestHandler_OrdersListHandler(t *testing.T) {
 			UserID:     correctUserID,
 			Number:     12345678903,
 			Status:     entities.OrderStatusNew,
-			UploadedAt: time.Date(2020, 12, 20, 18, 30, 0, 0, time.FixedZone("GMT+3", 60*60*3)),
+			UploadedAt: entities.TimeRFC3339{Time: time.Date(2020, 12, 20, 18, 30, 0, 0, time.FixedZone("GMT+3", 60*60*3))},
 		},
 		{
 			ID:         2,
 			UserID:     correctUserID,
 			Number:     900,
 			Status:     entities.OrderStatusNew,
-			UploadedAt: time.Date(2021, 12, 20, 18, 30, 0, 0, time.FixedZone("GMT+3", 60*60*3)),
+			UploadedAt: entities.TimeRFC3339{Time: time.Date(2021, 12, 20, 18, 30, 0, 0, time.FixedZone("GMT+3", 60*60*3))},
 		},
 	}
 
