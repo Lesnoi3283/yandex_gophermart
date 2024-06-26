@@ -49,6 +49,20 @@ func (mr *MockStorageIntMockRecorder) CheckUser(arg0, arg1, arg2 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUser", reflect.TypeOf((*MockStorageInt)(nil).CheckUser), arg0, arg1, arg2)
 }
 
+// SaveNewOrder mocks base method.
+func (m *MockStorageInt) SaveNewOrder(arg0, arg1 int, arg2 context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveNewOrder", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SaveNewOrder indicates an expected call of SaveNewOrder.
+func (mr *MockStorageIntMockRecorder) SaveNewOrder(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveNewOrder", reflect.TypeOf((*MockStorageInt)(nil).SaveNewOrder), arg0, arg1, arg2)
+}
+
 // SaveUser mocks base method.
 func (m *MockStorageInt) SaveUser(arg0, arg1 string, arg2 context.Context) (int, error) {
 	m.ctrl.T.Helper()

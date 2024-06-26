@@ -9,6 +9,7 @@ import "context"
 type StorageInt interface {
 	SaveUser(login string, password string, ctx context.Context) (int, error)  //int - id
 	CheckUser(login string, password string, ctx context.Context) (int, error) //int - id
+	SaveNewOrder(userID int, orderNum int, ctx context.Context) error
 }
 
 type JWTHelperInt interface {
