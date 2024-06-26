@@ -10,10 +10,11 @@ import (
 // todo: ? лучше объявлять разные интерфейсы (userStorage, ordersStorage и т.д.) или один большой StorageInt?
 
 type StorageInt interface {
-	SaveUser(login string, password string, ctx context.Context) (int, error)  //int - id
-	CheckUser(login string, password string, ctx context.Context) (int, error) //int - id
+	SaveUser(login string, password string, ctx context.Context) (int, error)  //int - ID
+	CheckUser(login string, password string, ctx context.Context) (int, error) //int - ID
 	SaveNewOrder(userID int, orderNum int, ctx context.Context) error
 	GetOrdersList(userID int, ctx context.Context) ([]entities.OrderData, error)
+	GetBalance(userID int, ctx context.Context) (entities.BalanceData, error)
 }
 
 type JWTHelperInt interface {

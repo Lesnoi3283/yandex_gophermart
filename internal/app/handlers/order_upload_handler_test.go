@@ -32,7 +32,6 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 	type fields struct {
 		Logger  zap.SugaredLogger
 		Storage StorageInt
-		//JWTH    JWTHelperInt
 	}
 	type args struct {
 		w *httptest.ResponseRecorder
@@ -118,7 +117,7 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader([]byte(""))).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", nil).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusBadRequest,
 		},
