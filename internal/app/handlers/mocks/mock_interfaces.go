@@ -35,6 +35,20 @@ func (m *MockStorageInt) EXPECT() *MockStorageIntMockRecorder {
 	return m.recorder
 }
 
+// AddRoBalance mocks base method.
+func (m *MockStorageInt) AddRoBalance(arg0 int, arg1 float64, arg2 context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddRoBalance", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddRoBalance indicates an expected call of AddRoBalance.
+func (mr *MockStorageIntMockRecorder) AddRoBalance(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddRoBalance", reflect.TypeOf((*MockStorageInt)(nil).AddRoBalance), arg0, arg1, arg2)
+}
+
 // CheckUser mocks base method.
 func (m *MockStorageInt) CheckUser(arg0, arg1 string, arg2 context.Context) (int, error) {
 	m.ctrl.T.Helper()
@@ -81,17 +95,17 @@ func (mr *MockStorageIntMockRecorder) GetOrdersList(arg0, arg1 interface{}) *gom
 }
 
 // SaveNewOrder mocks base method.
-func (m *MockStorageInt) SaveNewOrder(arg0, arg1 int, arg2 context.Context) error {
+func (m *MockStorageInt) SaveNewOrder(arg0 entities.OrderData, arg1 context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SaveNewOrder", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "SaveNewOrder", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SaveNewOrder indicates an expected call of SaveNewOrder.
-func (mr *MockStorageIntMockRecorder) SaveNewOrder(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockStorageIntMockRecorder) SaveNewOrder(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveNewOrder", reflect.TypeOf((*MockStorageInt)(nil).SaveNewOrder), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveNewOrder", reflect.TypeOf((*MockStorageInt)(nil).SaveNewOrder), arg0, arg1)
 }
 
 // SaveUser mocks base method.
@@ -107,6 +121,34 @@ func (m *MockStorageInt) SaveUser(arg0, arg1 string, arg2 context.Context) (int,
 func (mr *MockStorageIntMockRecorder) SaveUser(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveUser", reflect.TypeOf((*MockStorageInt)(nil).SaveUser), arg0, arg1, arg2)
+}
+
+// UpdateOrder mocks base method.
+func (m *MockStorageInt) UpdateOrder(arg0 entities.OrderData, arg1 context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateOrder", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateOrder indicates an expected call of UpdateOrder.
+func (mr *MockStorageIntMockRecorder) UpdateOrder(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrder", reflect.TypeOf((*MockStorageInt)(nil).UpdateOrder), arg0, arg1)
+}
+
+// WithdrawFromBalance mocks base method.
+func (m *MockStorageInt) WithdrawFromBalance(arg0 int, arg1 float64, arg2 context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WithdrawFromBalance", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WithdrawFromBalance indicates an expected call of WithdrawFromBalance.
+func (mr *MockStorageIntMockRecorder) WithdrawFromBalance(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithdrawFromBalance", reflect.TypeOf((*MockStorageInt)(nil).WithdrawFromBalance), arg0, arg1, arg2)
 }
 
 // MockJWTHelperInt is a mock of JWTHelperInt interface.
