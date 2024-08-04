@@ -89,11 +89,11 @@ func TestHandler_AuthUser(t *testing.T) {
 						Login:    testUser.Login,
 						Password: testUser.Password,
 					}
-					json, err := json.Marshal(data)
+					jsonData, err := json.Marshal(data)
 					if err != nil {
-						logger.Error("auth handler test", zap.Error(err))
+						logger.Error("auth handler test, err while building json request", zap.Error(err))
 					}
-					return bytes.NewReader(json)
+					return bytes.NewReader(jsonData)
 				}()),
 			},
 			statusWant: http.StatusOK,
