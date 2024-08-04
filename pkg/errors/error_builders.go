@@ -28,10 +28,10 @@ func MakeErrUserHasAlreadyUploadedThisOrder() error {
 	return errUserHasAlreadyUploadedThisOrder
 }
 
-var orderNotFound error = errors.New("order was not found")
+var errOrderNotFound error = errors.New("order was not found")
 
 func MakeErrOrderNotFound() error {
-	return orderNotFound
+	return errOrderNotFound
 }
 
 //security errors
@@ -44,8 +44,8 @@ func MakeErrJWTTokenIsNotValid() error {
 
 //business errors
 
-var notEnoughPoints error = errors.New("not enough points")
+var errNotEnoughPoints error = errors.New("not enough points")
 
 func MakeErrNotEnoughPoints() error {
-	return notEnoughPoints
+	return errNotEnoughPoints
 }

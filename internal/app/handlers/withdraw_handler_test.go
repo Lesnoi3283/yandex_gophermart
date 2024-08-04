@@ -27,14 +27,14 @@ func TestHandler_WithdrawHandler(t *testing.T) {
 
 	//data set
 	correctUserID := 1
-	correctOrderId := 2377225624
+	correctOrderID := 2377225624
 	correctSum := 750.0
 	makeRequestBody := func() io.Reader {
 		data := struct {
 			Order int
 			Sum   float64
 		}{
-			Order: correctOrderId,
+			Order: correctOrderID,
 			Sum:   correctSum,
 		}
 		jsonData, err := json.Marshal(data)
@@ -64,7 +64,7 @@ func TestHandler_WithdrawHandler(t *testing.T) {
 				Logger: sugar,
 				Storage: func() StorageInt {
 					store := mock_handlers.NewMockStorageInt(controller)
-					store.EXPECT().WithdrawFromBalance(correctUserID, correctOrderId, correctSum, gomock.Any()).Return(nil)
+					store.EXPECT().WithdrawFromBalance(correctUserID, correctOrderID, correctSum, gomock.Any()).Return(nil)
 					return store
 				}(),
 			},
@@ -95,7 +95,7 @@ func TestHandler_WithdrawHandler(t *testing.T) {
 				Logger: sugar,
 				Storage: func() StorageInt {
 					store := mock_handlers.NewMockStorageInt(controller)
-					store.EXPECT().WithdrawFromBalance(correctUserID, correctOrderId, correctSum, gomock.Any()).Return(gophermarterrors.MakeErrNotEnoughPoints())
+					store.EXPECT().WithdrawFromBalance(correctUserID, correctOrderID, correctSum, gomock.Any()).Return(gophermarterrors.MakeErrNotEnoughPoints())
 					return store
 				}(),
 			},
@@ -111,7 +111,7 @@ func TestHandler_WithdrawHandler(t *testing.T) {
 				Logger: sugar,
 				Storage: func() StorageInt {
 					store := mock_handlers.NewMockStorageInt(controller)
-					store.EXPECT().WithdrawFromBalance(correctUserID, correctOrderId, correctSum, gomock.Any()).Return(gophermarterrors.MakeErrOrderNotFound())
+					store.EXPECT().WithdrawFromBalance(correctUserID, correctOrderID, correctSum, gomock.Any()).Return(gophermarterrors.MakeErrOrderNotFound())
 					return store
 				}(),
 			},

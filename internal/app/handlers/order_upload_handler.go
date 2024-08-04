@@ -110,9 +110,9 @@ func processOrder(order entities.OrderData, storage *StorageInt, logger zap.Suga
 
 	//get data from a response
 	respData := struct {
-		order   int     `json:"order"`
-		status  string  `json:"status"`
-		accural float64 `json:"accural"`
+		Order   int     `json:"order"`
+		Status  string  `json:"status"`
+		Accural float64 `json:"accural"`
 	}{}
 
 	if resp.StatusCode != http.StatusOK {
@@ -139,10 +139,10 @@ func processOrder(order entities.OrderData, storage *StorageInt, logger zap.Suga
 	}
 
 	//update order
-	switch respData.status {
+	switch respData.Status {
 	case "PROCESSED":
 		order.Status = entities.OrderStatusProcessed
-		order.Accural = respData.accural
+		order.Accural = respData.Accural
 		err = (*storage).UpdateOrder(order, ctx)
 		if err != nil {
 			logger.Errorf("error while updating order data in a storage: %v", err.Error())
@@ -166,7 +166,7 @@ func processOrder(order entities.OrderData, storage *StorageInt, logger zap.Suga
 	case "REGISTERED":
 		//todo кейс registered
 	default:
-		logger.Errorf("unknown order status was received from outside service: `%v`", respData.status)
+		logger.Errorf("unknown order status was received from outside service: `%v`", respData.Status)
 		order.Status = entities.OrderStatusInvalid
 		err = (*storage).UpdateOrder(order, ctx)
 		if err != nil {
