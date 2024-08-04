@@ -30,7 +30,7 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	//creating user
 	uID, err := h.Storage.SaveUser(uData.Login, uData.Password, r.Context())
 	if errors.Is(err, g_errors.MakeErrUserAlreadyExists()) {
-		h.Logger.Infof("user create error: %v", err.Error())
+		h.Logger.Warnf("user create error: %v", err.Error())
 		w.WriteHeader(http.StatusConflict)
 		_, err := w.Write([]byte("this user already exists"))
 		if err != nil {

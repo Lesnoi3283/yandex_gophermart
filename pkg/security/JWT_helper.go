@@ -48,7 +48,7 @@ func (j *JWTHelper) GetUserID(token string) (int, error) {
 		return -1, err
 	}
 	if !tokenGot.Valid {
-		return -1, gophermart_errors.MakeJWTTokenIsNotValid()
+		return -1, gophermart_errors.MakeErrJWTTokenIsNotValid()
 	}
 
 	return claims.UserID, nil

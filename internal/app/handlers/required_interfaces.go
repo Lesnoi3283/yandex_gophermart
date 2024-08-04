@@ -17,7 +17,7 @@ type StorageInt interface {
 	GetOrdersList(userID int, ctx context.Context) ([]entities.OrderData, error)
 	GetBalance(userID int, ctx context.Context) (entities.BalanceData, error)
 	AddRoBalance(userID int, amount float64, ctx context.Context) error
-	WithdrawFromBalance(userID int, amount float64, ctx context.Context) error
+	WithdrawFromBalance(userID int, orderID int, amount float64, ctx context.Context) error
 }
 
 type JWTHelperInt interface {

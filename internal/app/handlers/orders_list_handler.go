@@ -10,7 +10,7 @@ func (h *Handler) OrdersListHandler(w http.ResponseWriter, r *http.Request) {
 	//get userID
 	userID := r.Context().Value(UserIDContextKey)
 	if userID == nil {
-		h.Logger.Infof("user id wasn`t found in ctx")
+		h.Logger.Debugf("user id wasn`t found in ctx")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

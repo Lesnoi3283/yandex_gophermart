@@ -138,17 +138,17 @@ func (mr *MockStorageIntMockRecorder) UpdateOrder(arg0, arg1 interface{}) *gomoc
 }
 
 // WithdrawFromBalance mocks base method.
-func (m *MockStorageInt) WithdrawFromBalance(arg0 int, arg1 float64, arg2 context.Context) error {
+func (m *MockStorageInt) WithdrawFromBalance(arg0, arg1 int, arg2 float64, arg3 context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "WithdrawFromBalance", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "WithdrawFromBalance", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // WithdrawFromBalance indicates an expected call of WithdrawFromBalance.
-func (mr *MockStorageIntMockRecorder) WithdrawFromBalance(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockStorageIntMockRecorder) WithdrawFromBalance(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithdrawFromBalance", reflect.TypeOf((*MockStorageInt)(nil).WithdrawFromBalance), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithdrawFromBalance", reflect.TypeOf((*MockStorageInt)(nil).WithdrawFromBalance), arg0, arg1, arg2, arg3)
 }
 
 // MockJWTHelperInt is a mock of JWTHelperInt interface.

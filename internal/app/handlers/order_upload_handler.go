@@ -23,7 +23,7 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(bodyBytes) == 0 {
-		h.Logger.Infof("empty request body")
+		h.Logger.Debugf("empty request body")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
