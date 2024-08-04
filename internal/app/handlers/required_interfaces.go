@@ -12,9 +12,12 @@ import (
 type StorageInt interface {
 	SaveUser(login string, password string, ctx context.Context) (int, error)  //int - ID
 	CheckUser(login string, password string, ctx context.Context) (int, error) //int - ID
-	SaveNewOrder(userID int, orderNum int, ctx context.Context) error
+	SaveNewOrder(orderData entities.OrderData, ctx context.Context) error
+	UpdateOrder(orderData entities.OrderData, ctx context.Context) error
 	GetOrdersList(userID int, ctx context.Context) ([]entities.OrderData, error)
 	GetBalance(userID int, ctx context.Context) (entities.BalanceData, error)
+	AddRoBalance(userID int, amount float64, ctx context.Context) error
+	WithdrawFromBalance(userID int, orderID int, amount float64, ctx context.Context) error
 }
 
 type JWTHelperInt interface {

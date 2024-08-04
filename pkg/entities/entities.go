@@ -16,6 +16,8 @@ const (
 	OrderStatusProcessing = "PROCESSING"
 	OrderStatusInvalid    = "INVALID"
 	OrderStatusProcessed  = "PROCESSED"
+
+	OrderTimeFormat = time.RFC3339
 )
 
 type TimeRFC3339 struct {
@@ -23,7 +25,7 @@ type TimeRFC3339 struct {
 }
 
 func (t *TimeRFC3339) MarshalJSON() ([]byte, error) {
-	return json.Marshal(t.Time.Format(time.RFC3339))
+	return json.Marshal(t.Time.Format(OrderTimeFormat))
 }
 
 func (t *TimeRFC3339) UnmarshalJSON(data []byte) error {
@@ -31,7 +33,7 @@ func (t *TimeRFC3339) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
-	parsedTime, err := time.Parse(time.RFC3339, s)
+	parsedTime, err := time.Parse(OrderTimeFormat, s)
 	if err != nil {
 		return err
 	}
@@ -44,7 +46,7 @@ type OrderData struct {
 	UserID     int         `json:"-"`
 	Number     int         `json:"number"`
 	Status     string      `json:"status"`
-	Accural    int         `json:"accural"`
+	Accural    float64     `json:"accural"`
 	UploadedAt TimeRFC3339 `json:"uploaded_at"`
 }
 

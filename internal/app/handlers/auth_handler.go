@@ -30,7 +30,7 @@ func (h *Handler) AuthUser(w http.ResponseWriter, r *http.Request) {
 	//checking user
 	uID, err := h.Storage.CheckUser(uData.Login, uData.Password, r.Context())
 	if errors.Is(err, g_errors.MakeErrUserNotFound()) {
-		h.Logger.Infof("auth error: %v", err.Error())
+		h.Logger.Warnf("auth error: %v", err.Error())
 		w.WriteHeader(http.StatusUnauthorized)
 		_, err := w.Write([]byte("auth error"))
 		if err != nil {
