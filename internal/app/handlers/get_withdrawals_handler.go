@@ -15,7 +15,7 @@ func (h *Handler) GetWithdrawals(w http.ResponseWriter, r *http.Request) {
 	}
 	userIDInt, ok := userID.(int)
 	if !ok {
-		h.Logger.Errorf("user ID is not an int")
+		h.Logger.Errorf("userID is not an int")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
