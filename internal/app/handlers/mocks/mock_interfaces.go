@@ -94,6 +94,21 @@ func (mr *MockStorageIntMockRecorder) GetOrdersList(arg0, arg1 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrdersList", reflect.TypeOf((*MockStorageInt)(nil).GetOrdersList), arg0, arg1)
 }
 
+// GetWithdrawals mocks base method.
+func (m *MockStorageInt) GetWithdrawals(arg0 int, arg1 context.Context) ([]entities.WithdrawalData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWithdrawals", arg0, arg1)
+	ret0, _ := ret[0].([]entities.WithdrawalData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWithdrawals indicates an expected call of GetWithdrawals.
+func (mr *MockStorageIntMockRecorder) GetWithdrawals(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWithdrawals", reflect.TypeOf((*MockStorageInt)(nil).GetWithdrawals), arg0, arg1)
+}
+
 // SaveNewOrder mocks base method.
 func (m *MockStorageInt) SaveNewOrder(arg0 entities.OrderData, arg1 context.Context) error {
 	m.ctrl.T.Helper()
