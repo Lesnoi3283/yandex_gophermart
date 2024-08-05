@@ -28,7 +28,13 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//creating user
-	uID, err := h.Storage.SaveUser(uData.Login, uData.Password, r.Context())
+	passwordSalt, err := security.GenPasswordSalt()
+	if err != nil {
+		h.Logger.Errorf("cant generate a password salt: %v", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	uID, err := h.Storage.SaveUser(uData.Login, security.HashPassword(uData.Password, passwordSalt), passwordSalt, r.Context())
 	if errors.Is(err, g_errors.MakeErrUserAlreadyExists()) {
 		h.Logger.Warnf("user create error: %v", err.Error())
 		w.WriteHeader(http.StatusConflict)

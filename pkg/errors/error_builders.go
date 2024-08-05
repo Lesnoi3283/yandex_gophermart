@@ -42,6 +42,12 @@ func MakeErrJWTTokenIsNotValid() error {
 	return errJWTTokenIsNotValid
 }
 
+var errWrongLoginOrPassword error = errors.New("incorrect login or password")
+
+func MakeErrWrongLoginOrPassword() error {
+	return errWrongLoginOrPassword
+}
+
 //business errors
 
 var errNotEnoughPoints error = errors.New("not enough points")

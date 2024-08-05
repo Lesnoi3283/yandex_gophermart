@@ -10,13 +10,13 @@ import (
 // todo: ? лучше объявлять разные интерфейсы (userStorage, ordersStorage и т.д.) или один большой StorageInt?
 
 type StorageInt interface {
-	SaveUser(login string, password string, ctx context.Context) (int, error)  //int - ID
-	CheckUser(login string, password string, ctx context.Context) (int, error) //int - ID
+	SaveUser(login string, passwordHash string, passwordSalt string, ctx context.Context) (int, error) //int - ID
+	GetUserIDWithCheck(login string, passwordHash string, ctx context.Context) (int, error)            //int - ID
 	SaveNewOrder(orderData entities.OrderData, ctx context.Context) error
 	UpdateOrder(orderData entities.OrderData, ctx context.Context) error
 	GetOrdersList(userID int, ctx context.Context) ([]entities.OrderData, error)
 	GetBalance(userID int, ctx context.Context) (entities.BalanceData, error)
-	AddRoBalance(userID int, amount float64, ctx context.Context) error
+	AddToBalance(userID int, amount float64, ctx context.Context) error
 	WithdrawFromBalance(userID int, orderID int, amount float64, ctx context.Context) error
 	GetWithdrawals(userID int, ctx context.Context) (withdrawals []entities.WithdrawalData, err error)
 }

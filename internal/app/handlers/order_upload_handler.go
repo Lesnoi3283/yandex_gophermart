@@ -148,7 +148,7 @@ func processOrder(order entities.OrderData, storage *StorageInt, logger zap.Suga
 			logger.Errorf("error while updating order data in a storage: %v", err.Error())
 			return
 		}
-		err = (*storage).AddRoBalance(order.UserID, order.Accural, ctx)
+		err = (*storage).AddToBalance(order.UserID, order.Accural, ctx)
 		if err != nil {
 			logger.Errorf("cant increase user`s balance, err: %v", err.Error())
 			return
