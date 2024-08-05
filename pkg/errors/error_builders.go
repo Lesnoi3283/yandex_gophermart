@@ -42,7 +42,7 @@ func MakeErrJWTTokenIsNotValid() error {
 	return errJWTTokenIsNotValid
 }
 
-var errWrongLoginOrPassword error = errors.New("Incorrect login or password")
+var errWrongLoginOrPassword error = errors.New("incorrect login or password")
 
 func MakeErrWrongLoginOrPassword() error {
 	return errWrongLoginOrPassword
