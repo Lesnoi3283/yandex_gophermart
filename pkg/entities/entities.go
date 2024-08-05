@@ -57,3 +57,9 @@ type BalanceData struct {
 	Current   float64 `json:"current"`
 	Withdrawn float64 `json:"withdrawn"`
 }
+
+type WithdrawalData struct {
+	OrderID     int         `json:"order"`
+	Sum         float64     `json:"sum"`
+	ProcessedAt TimeRFC3339 `json:"processed_at"`
+}

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
 	"io"
@@ -39,7 +40,7 @@ func TestHandler_WithdrawHandler(t *testing.T) {
 		}
 		jsonData, err := json.Marshal(data)
 		if err != nil {
-			sugar.Errorf("withdraw handler test, err while building json request: %v", err.Error())
+			require.NoError(t, err, "withdraw handler test, err while building json request")
 		}
 		return bytes.NewReader(jsonData)
 	}
