@@ -59,7 +59,7 @@ func TestHandler_GetWithdrawals(t *testing.T) {
 					storage := mock_handlers.NewMockStorageInt(controller)
 					storage.EXPECT().GetWithdrawals(correctUserID, gomock.Any()).Return([]entities.WithdrawalData{
 						{
-							OrderID:     correctOrderID,
+							OrderNum:    correctOrderID,
 							Sum:         correctSum,
 							ProcessedAt: entities.TimeRFC3339{Time: correctOrderTime},
 						},

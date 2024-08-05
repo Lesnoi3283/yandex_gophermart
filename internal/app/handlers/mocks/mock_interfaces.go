@@ -36,9 +36,9 @@ func (m *MockStorageInt) EXPECT() *MockStorageIntMockRecorder {
 }
 
 // AddRoBalance mocks base method.
-func (m *MockStorageInt) AddRoBalance(arg0 int, arg1 float64, arg2 context.Context) error {
+func (m *MockStorageInt) AddToBalance(arg0 int, arg1 float64, arg2 context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddRoBalance", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "AddToBalance", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -46,22 +46,7 @@ func (m *MockStorageInt) AddRoBalance(arg0 int, arg1 float64, arg2 context.Conte
 // AddRoBalance indicates an expected call of AddRoBalance.
 func (mr *MockStorageIntMockRecorder) AddRoBalance(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddRoBalance", reflect.TypeOf((*MockStorageInt)(nil).AddRoBalance), arg0, arg1, arg2)
-}
-
-// CheckUser mocks base method.
-func (m *MockStorageInt) CheckUser(arg0, arg1 string, arg2 context.Context) (int, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckUser", arg0, arg1, arg2)
-	ret0, _ := ret[0].(int)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CheckUser indicates an expected call of CheckUser.
-func (mr *MockStorageIntMockRecorder) CheckUser(arg0, arg1, arg2 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUser", reflect.TypeOf((*MockStorageInt)(nil).CheckUser), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddToBalance", reflect.TypeOf((*MockStorageInt)(nil).AddToBalance), arg0, arg1, arg2)
 }
 
 // GetBalance mocks base method.
@@ -94,6 +79,21 @@ func (mr *MockStorageIntMockRecorder) GetOrdersList(arg0, arg1 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrdersList", reflect.TypeOf((*MockStorageInt)(nil).GetOrdersList), arg0, arg1)
 }
 
+// GetUserIDWithCheck mocks base method.
+func (m *MockStorageInt) GetUserIDWithCheck(arg0, arg1 string, arg2 context.Context) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserIDWithCheck", arg0, arg1, arg2)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserIDWithCheck indicates an expected call of GetUserIDWithCheck.
+func (mr *MockStorageIntMockRecorder) GetUserIDWithCheck(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserIDWithCheck", reflect.TypeOf((*MockStorageInt)(nil).GetUserIDWithCheck), arg0, arg1, arg2)
+}
+
 // GetWithdrawals mocks base method.
 func (m *MockStorageInt) GetWithdrawals(arg0 int, arg1 context.Context) ([]entities.WithdrawalData, error) {
 	m.ctrl.T.Helper()
@@ -124,18 +124,18 @@ func (mr *MockStorageIntMockRecorder) SaveNewOrder(arg0, arg1 interface{}) *gomo
 }
 
 // SaveUser mocks base method.
-func (m *MockStorageInt) SaveUser(arg0, arg1 string, arg2 context.Context) (int, error) {
+func (m *MockStorageInt) SaveUser(arg0, arg1, arg2 string, arg3 context.Context) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SaveUser", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "SaveUser", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SaveUser indicates an expected call of SaveUser.
-func (mr *MockStorageIntMockRecorder) SaveUser(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockStorageIntMockRecorder) SaveUser(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveUser", reflect.TypeOf((*MockStorageInt)(nil).SaveUser), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveUser", reflect.TypeOf((*MockStorageInt)(nil).SaveUser), arg0, arg1, arg2, arg3)
 }
 
 // UpdateOrder mocks base method.
