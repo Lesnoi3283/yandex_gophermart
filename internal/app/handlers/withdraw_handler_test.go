@@ -14,6 +14,7 @@ import (
 	"net/http/httptest"
 	"testing"
 	mock_handlers "yandex_gophermart/internal/app/handlers/mocks"
+	"yandex_gophermart/internal/app/middlewares"
 	gophermarterrors "yandex_gophermart/pkg/errors"
 )
 
@@ -71,7 +72,7 @@ func TestHandler_WithdrawHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/balance/withdraw", makeRequestBody()).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/balance/withdraw", makeRequestBody()).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusOK,
 		},
@@ -102,7 +103,7 @@ func TestHandler_WithdrawHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/balance/withdraw", makeRequestBody()).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/balance/withdraw", makeRequestBody()).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusPaymentRequired,
 		},
@@ -118,7 +119,7 @@ func TestHandler_WithdrawHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/balance/withdraw", makeRequestBody()).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/balance/withdraw", makeRequestBody()).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusUnprocessableEntity,
 		},

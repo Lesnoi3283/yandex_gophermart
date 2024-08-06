@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 	mock_handlers "yandex_gophermart/internal/app/handlers/mocks"
+	"yandex_gophermart/internal/app/middlewares"
 	"yandex_gophermart/pkg/entities"
 )
 
@@ -59,7 +60,7 @@ func TestHandler_GetBalanceHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/balance", nil).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/balance", nil).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusOK,
 		},

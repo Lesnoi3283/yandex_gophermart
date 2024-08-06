@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"yandex_gophermart/internal/app/middlewares"
 	gophermarterrors "yandex_gophermart/pkg/errors"
 )
 
@@ -16,7 +17,7 @@ type withdrawData struct {
 func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 
 	//get userID
-	userID := r.Context().Value(UserIDContextKey)
+	userID := r.Context().Value(middlewares.UserIDContextKey)
 	if userID == nil {
 		h.Logger.Debugf("user id wasn`t found in ctx")
 		w.WriteHeader(http.StatusUnauthorized)

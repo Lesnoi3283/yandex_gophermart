@@ -3,12 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"yandex_gophermart/internal/app/middlewares"
 )
 
 func (h *Handler) GetBalanceHandler(w http.ResponseWriter, r *http.Request) {
 
 	//get userID
-	userID := r.Context().Value(UserIDContextKey)
+	userID := r.Context().Value(middlewares.UserIDContextKey)
 	if userID == nil {
 		h.Logger.Debugf("user id wasn`t found in ctx")
 		w.WriteHeader(http.StatusUnauthorized)

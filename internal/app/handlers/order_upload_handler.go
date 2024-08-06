@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"yandex_gophermart/internal/app/middlewares"
 	"yandex_gophermart/pkg/entities"
 	gophermart_errors "yandex_gophermart/pkg/errors"
 )
@@ -38,7 +39,7 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//get userID
-	userID := r.Context().Value(UserIDContextKey)
+	userID := r.Context().Value(middlewares.UserIDContextKey)
 	if userID == nil {
 		h.Logger.Infof("user id wasn`t found in ctx")
 		w.WriteHeader(http.StatusUnauthorized)

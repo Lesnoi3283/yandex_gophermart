@@ -3,11 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"yandex_gophermart/internal/app/middlewares"
 )
 
 func (h *Handler) GetWithdrawals(w http.ResponseWriter, r *http.Request) {
 	//get user data
-	userID := r.Context().Value(UserIDContextKey)
+	userID := r.Context().Value(middlewares.UserIDContextKey)
 	if userID == nil {
 		h.Logger.Debugf("no user ID was found in context")
 		w.WriteHeader(http.StatusUnauthorized)

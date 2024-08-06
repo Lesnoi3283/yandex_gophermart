@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 	mock_handlers "yandex_gophermart/internal/app/handlers/mocks"
+	"yandex_gophermart/internal/app/middlewares"
 	"yandex_gophermart/pkg/entities"
 )
 
@@ -73,7 +74,7 @@ func TestHandler_OrdersListHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodGet, "/api/user/orders", nil).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
+				r: httptest.NewRequest(http.MethodGet, "/api/user/orders", nil).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusOK,
 			checkBody:  true,
@@ -90,7 +91,7 @@ func TestHandler_OrdersListHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodGet, "/api/user/orders", nil).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
+				r: httptest.NewRequest(http.MethodGet, "/api/user/orders", nil).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusNoContent,
 			checkBody:  false,
