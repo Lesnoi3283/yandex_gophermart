@@ -79,7 +79,6 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
-// todo: тесты на функцию
 func processOrder(accrualSystemAddress string, order entities.OrderData, storage *StorageInt, logger zap.SugaredLogger, maxTry int) {
 	if maxTry == 0 {
 		return
