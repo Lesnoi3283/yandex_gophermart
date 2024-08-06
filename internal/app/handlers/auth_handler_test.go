@@ -179,7 +179,6 @@ func TestHandler_AuthUser(t *testing.T) {
 
 			if tt.checkJWT {
 				wasJWTFound := false
-				tt.args.w.Result().Body.Close()
 				cookies := tt.args.w.Result().Cookies()
 				//todo: vet check ругается на незакрытое тело ответа
 				for _, cookie := range cookies {
@@ -190,10 +189,10 @@ func TestHandler_AuthUser(t *testing.T) {
 				}
 				assert.Equal(t, true, wasJWTFound, "JWT cookie wasn`t found")
 			}
-			//err := tt.args.w.Result().Body.Close()
-			//if err != nil {
-			//	sugarLogger.Errorf("Cant close response body: %v", err.Error())
-			//}
+			err := tt.args.w.Result().Body.Close()
+			if err != nil {
+				sugarLogger.Errorf("Cant close response body: %v", err.Error())
+			}
 		})
 	}
 }
