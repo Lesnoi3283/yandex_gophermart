@@ -7,6 +7,8 @@ import (
 )
 
 func (h *Handler) GetWithdrawals(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	//get user data
 	userID := r.Context().Value(middlewares.UserIDContextKey)
 	if userID == nil {
@@ -44,6 +46,5 @@ func (h *Handler) GetWithdrawals(w http.ResponseWriter, r *http.Request) {
 
 	//write response
 	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
 	w.Write(JSONData)
 }

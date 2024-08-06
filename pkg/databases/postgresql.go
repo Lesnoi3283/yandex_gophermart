@@ -74,7 +74,9 @@ func (p *Postgresql) SaveUser(login string, passwordHash string, passwordSalt st
 		RETURNING id;`,
 		login, passwordHash, passwordSalt).Scan(&userID)
 
-	if err != nil {
+	if errors.Is(err, sql.ErrNoRows) {
+		return 0, gophermart_errors.MakeErrUserAlreadyExists()
+	} else if err != nil {
 		return 0, err
 	}
 

@@ -72,7 +72,7 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//process order
-	go processOrder(h.AccrualSystemAddress, newOrder, &h.Storage, h.Logger, 2)
+	go processOrder(h.AccrualSystemAddress, newOrder, &h.Storage, h.Logger, 5)
 
 	//return
 	w.WriteHeader(http.StatusAccepted)
@@ -154,7 +154,7 @@ func processOrder(accrualSystemAddress string, order entities.OrderData, storage
 			return
 		}
 	case "PROCESSING":
-		time.Sleep(100 * time.Millisecond)
+		//time.Sleep(100 * time.Millisecond)
 		processOrder(accrualSystemAddress, order, storage, logger, maxTry)
 	case "INVALID":
 		order.Status = entities.OrderStatusInvalid
@@ -164,7 +164,7 @@ func processOrder(accrualSystemAddress string, order entities.OrderData, storage
 			return
 		}
 	case "REGISTERED":
-		time.Sleep(100 * time.Millisecond)
+		//time.Sleep(100 * time.Millisecond)
 		processOrder(accrualSystemAddress, order, storage, logger, maxTry)
 	default:
 		logger.Errorf("unknown order status was received from outside service: `%v`", respData.Status)
