@@ -41,6 +41,7 @@ func (h *Handler) AuthUser(w http.ResponseWriter, r *http.Request) {
 	} else if err != nil {
 		h.Logger.Warnf("cant find user in db, err: %v", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	//creating and setting jwt token

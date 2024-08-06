@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"strconv"
 	time2 "time"
 	"yandex_gophermart/pkg/entities"
 	gophermart_errors "yandex_gophermart/pkg/errors"
@@ -110,7 +109,7 @@ func (p *Postgresql) SaveNewOrder(orderData entities.OrderData, ctx context.Cont
 	_, err := p.store.ExecContext(ctx, `
 		INSERT INTO orders (user_id, order_number, status, accural, uploaded_at)
 		VALUES ($1, $2, $3, $4, $5)`,
-		orderData.UserID, strconv.Itoa(orderData.Number), orderData.Status, orderData.Accural, time)
+		orderData.UserID, orderData.Number, orderData.Status, orderData.Accural, time)
 	return err
 }
 

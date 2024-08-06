@@ -7,7 +7,6 @@ import (
 	"go.uber.org/zap"
 	"io"
 	"net/http"
-	"strconv"
 	"time"
 	"yandex_gophermart/internal/app/middlewares"
 	"yandex_gophermart/pkg/entities"
@@ -31,12 +30,12 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	//todo: check with Luna`s alg
 	orderNum := string(bodyBytes)
-	orderNumInt, err := strconv.Atoi(orderNum)
-	if err != nil {
-		h.Logger.Errorf("cant convert orderNum into int: %v", err.Error())
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		return
-	}
+	//orderNumInt, err := strconv.Atoi(orderNum)
+	//if err != nil {
+	//	h.Logger.Errorf("cant convert orderNum into int: %v", err.Error())
+	//	w.WriteHeader(http.StatusUnprocessableEntity)
+	//	return
+	//}
 
 	//get userID
 	userID := r.Context().Value(middlewares.UserIDContextKey)
@@ -55,7 +54,7 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 	//save new order
 	newOrder := entities.OrderData{
 		UserID:     userIDInt,
-		Number:     orderNumInt,
+		Number:     orderNum,
 		Status:     entities.OrderStatusNew,
 		Accural:    0,
 		UploadedAt: entities.TimeRFC3339{Time: time.Now()},
@@ -95,7 +94,7 @@ func processOrder(accrualSystemAddress string, order entities.OrderData, storage
 	}
 
 	//ask different service
-	targetURL := accrualSystemAddress + "/api/orders/" + strconv.Itoa(order.Number)
+	targetURL := accrualSystemAddress + "/api/orders/" + order.Number
 	resp, err := http.Get(targetURL)
 	if err != nil {
 		order.Status = entities.OrderStatusInvalid

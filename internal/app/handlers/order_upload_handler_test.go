@@ -105,22 +105,22 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 			statusWant: http.StatusConflict,
 			wgAmout:    0,
 		},
-		{
-			name: "broken order id",
-			fields: fields{
-				Logger: *sugarLogger,
-				Storage: func() StorageInt {
-					storage := mock_handlers.NewMockStorageInt(controller)
-					return storage
-				}(),
-			},
-			args: args{
-				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader([]byte("123sometext123"))).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
-			},
-			statusWant: http.StatusUnprocessableEntity,
-			wgAmout:    0,
-		},
+		//{
+		//	name: "broken order id",
+		//	fields: fields{
+		//		Logger: *sugarLogger,
+		//		Storage: func() StorageInt {
+		//			storage := mock_handlers.NewMockStorageInt(controller)
+		//			return storage
+		//		}(),
+		//	},
+		//	args: args{
+		//		w: httptest.NewRecorder(),
+		//		r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader([]byte("123sometext123"))).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
+		//	},
+		//	statusWant: http.StatusUnprocessableEntity,
+		//	wgAmout:    0,
+		//},
 		{
 			name: "no order id",
 			fields: fields{
