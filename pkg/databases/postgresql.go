@@ -44,7 +44,7 @@ func (p *Postgresql) SetTables() error {
 		);`,
 		`CREATE TABLE IF NOT EXISTS balances (
 			id SERIAL PRIMARY KEY,
-			user_id INTEGER,
+			user_id INTEGER UNIQUE,
 			points FLOAT
 		);`,
 		`CREATE TABLE IF NOT EXISTS withdrawals (
