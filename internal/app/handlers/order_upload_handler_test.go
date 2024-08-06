@@ -13,6 +13,7 @@ import (
 	"sync"
 	"testing"
 	mock_handlers "yandex_gophermart/internal/app/handlers/mocks"
+	"yandex_gophermart/internal/app/middlewares"
 	"yandex_gophermart/pkg/entities"
 	gophermart_errors "yandex_gophermart/pkg/errors"
 )
@@ -65,7 +66,7 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderNumBytes)).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderNumBytes)).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusAccepted,
 			wgAmout:    1,
@@ -82,7 +83,7 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderNumBytes)).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderNumBytes)).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusOK,
 			wgAmout:    0,
@@ -99,7 +100,7 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderNumBytes)).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderNumBytes)).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusConflict,
 			wgAmout:    0,
@@ -115,7 +116,7 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader([]byte("123sometext123"))).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader([]byte("123sometext123"))).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusUnprocessableEntity,
 			wgAmout:    0,
@@ -131,7 +132,7 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 			},
 			args: args{
 				w: httptest.NewRecorder(),
-				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", nil).WithContext(context.WithValue(context.Background(), UserIDContextKey, correctUserID)),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", nil).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusBadRequest,
 			wgAmout:    0,

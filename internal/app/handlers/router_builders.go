@@ -8,6 +8,7 @@ func NewRouter() chi.Router {
 	r := chi.NewRouter()
 
 	//todo: create&set handlers and middlewares
+	r.Use()
 
 	return r
 }

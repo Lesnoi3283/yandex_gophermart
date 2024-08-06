@@ -44,6 +44,10 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		return
+	} else if err != nil {
+		h.Logger.Errorf("cant save user in db: %v", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	//creating and setting jwt token
