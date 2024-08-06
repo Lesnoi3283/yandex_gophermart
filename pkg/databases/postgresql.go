@@ -4,7 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	_ "github.com/jackc/pgx/v5"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"strconv"
 	"yandex_gophermart/pkg/entities"
 	gophermart_errors "yandex_gophermart/pkg/errors"
 	"yandex_gophermart/pkg/security"
@@ -90,7 +91,9 @@ func (p *Postgresql) GetUserIDWithCheck(login string, password string, ctx conte
 		SELECT id, password_hash, password_salt 
 		FROM users 
 		WHERE login = $1`, login).Scan(&userID, &passwordHash, &passwordSalt)
-	if err != nil {
+	if errors.Is(err, sql.ErrNoRows) {
+		return 0, gophermart_errors.MakeErrWrongLoginOrPassword()
+	} else if err != nil {
 		return 0, err
 	}
 
@@ -102,10 +105,11 @@ func (p *Postgresql) GetUserIDWithCheck(login string, password string, ctx conte
 }
 
 func (p *Postgresql) SaveNewOrder(orderData entities.OrderData, ctx context.Context) error {
+	time := orderData.UploadedAt.Time
 	_, err := p.store.ExecContext(ctx, `
 		INSERT INTO orders (user_id, order_number, status, accural, uploaded_at)
 		VALUES ($1, $2, $3, $4, $5)`,
-		orderData.UserID, orderData.Number, orderData.Status, orderData.Accural, orderData.UploadedAt)
+		orderData.UserID, strconv.Itoa(orderData.Number), orderData.Status, orderData.Accural, time)
 	return err
 }
 
@@ -114,7 +118,7 @@ func (p *Postgresql) UpdateOrder(orderData entities.OrderData, ctx context.Conte
 		UPDATE orders 
 		SET status = $1, accural = $2, uploaded_at = $3
 		WHERE id = $4 AND user_id = $5`,
-		orderData.Status, orderData.Accural, orderData.UploadedAt, orderData.ID, orderData.UserID)
+		orderData.Status, orderData.Accural, orderData.UploadedAt.Time, orderData.ID, orderData.UserID)
 	return err
 }
 

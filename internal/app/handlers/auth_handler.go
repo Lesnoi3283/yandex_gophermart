@@ -29,15 +29,18 @@ func (h *Handler) AuthUser(w http.ResponseWriter, r *http.Request) {
 
 	//checking user
 	uID, err := h.Storage.GetUserIDWithCheck(uData.Login, uData.Password, r.Context())
-	if errors.Is(err, g_errors.MakeErrUserNotFound()) {
+	if errors.Is(err, g_errors.MakeErrWrongLoginOrPassword()) {
 		h.Logger.Warnf("auth error: %v", err.Error())
 		w.WriteHeader(http.StatusUnauthorized)
-		_, err := w.Write([]byte("auth error"))
+		//_, err := w.Write([]byte("auth error"))
 		if err != nil {
 			h.Logger.Errorf("response write err: %v", err.Error())
 			return
 		}
 		return
+	} else if err != nil {
+		h.Logger.Warnf("cant find user in db, err: %v", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 
 	//creating and setting jwt token
@@ -54,5 +57,6 @@ func (h *Handler) AuthUser(w http.ResponseWriter, r *http.Request) {
 	})
 
 	//return
+	h.Logger.Debugf("User authorised, id '%d'", uID)
 	w.WriteHeader(http.StatusOK)
 }

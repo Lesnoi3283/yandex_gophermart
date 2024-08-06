@@ -73,14 +73,14 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//process order
-	go processOrder(newOrder, &h.Storage, h.Logger, 2)
+	go processOrder(h.AccrualSystemAddress, newOrder, &h.Storage, h.Logger, 2)
 
 	//return
 	w.WriteHeader(http.StatusAccepted)
 }
 
 // todo: тесты на функцию
-func processOrder(order entities.OrderData, storage *StorageInt, logger zap.SugaredLogger, maxTry int) {
+func processOrder(accrualSystemAddress string, order entities.OrderData, storage *StorageInt, logger zap.SugaredLogger, maxTry int) {
 	if maxTry == 0 {
 		return
 	}
@@ -96,7 +96,7 @@ func processOrder(order entities.OrderData, storage *StorageInt, logger zap.Suga
 	}
 
 	//ask different service
-	targetURL := "/api/orders/" + strconv.Itoa(order.Number)
+	targetURL := accrualSystemAddress + "/api/orders/" + strconv.Itoa(order.Number)
 	resp, err := http.Get(targetURL)
 	if err != nil {
 		order.Status = entities.OrderStatusInvalid
@@ -157,7 +157,7 @@ func processOrder(order entities.OrderData, storage *StorageInt, logger zap.Suga
 		}
 	case "PROCESSING":
 		time.Sleep(3000 * time.Millisecond)
-		processOrder(order, storage, logger, maxTry)
+		processOrder(accrualSystemAddress, order, storage, logger, maxTry)
 	case "INVALID":
 		order.Status = entities.OrderStatusInvalid
 		err = (*storage).UpdateOrder(order, ctx)
