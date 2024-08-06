@@ -135,7 +135,7 @@ func (p *Postgresql) GetOrdersList(userID int, ctx context.Context) ([]entities.
 	var orders []entities.OrderData
 	for rows.Next() {
 		var order entities.OrderData
-		if err := rows.Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.Accural, &order.UploadedAt); err != nil {
+		if err := rows.Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.Accural, &order.UploadedAt.Time); err != nil {
 			return nil, err
 		}
 		orders = append(orders, order)
