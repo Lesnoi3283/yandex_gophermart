@@ -4,12 +4,22 @@ import (
 	"go.uber.org/zap"
 	"log"
 	"net/http"
+	"yandex_gophermart/config"
 	"yandex_gophermart/internal/app/handlers"
 )
 
 func main() {
+	//conf
+	cfg := config.Config{}
+	cfg.Configure()
+
 	//logger set
 	zCfg := zap.NewProductionConfig()
+	level, err := zap.ParseAtomicLevel(cfg.LogLevel)
+	if err != nil {
+		log.Fatalf("Cant parse log level, err: %v", err)
+	}
+	zCfg.Level = level
 	logger, err := zCfg.Build()
 	if err != nil {
 		log.Fatalf("logger was not started, err: %v", err)
