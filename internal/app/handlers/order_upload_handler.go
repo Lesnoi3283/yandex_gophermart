@@ -154,7 +154,7 @@ func processOrder(accrualSystemAddress string, order entities.OrderData, storage
 			return
 		}
 	case "PROCESSING":
-		time.Sleep(3000 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond)
 		processOrder(accrualSystemAddress, order, storage, logger, maxTry)
 	case "INVALID":
 		order.Status = entities.OrderStatusInvalid
