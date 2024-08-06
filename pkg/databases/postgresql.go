@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/jackc/pgx/v5/pgconn"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	time2 "time"
 	"yandex_gophermart/pkg/entities"
@@ -36,7 +37,7 @@ func (p *Postgresql) SetTables() error {
 		`CREATE TABLE IF NOT EXISTS orders (
 			id SERIAL PRIMARY KEY,
 			user_id INTEGER,
-			order_number VARCHAR(255),
+			order_number VARCHAR(255) UNIQUE,
 			status VARCHAR(255),
 			accural FLOAT,
 			uploaded_at TIMESTAMP
@@ -107,12 +108,34 @@ func (p *Postgresql) GetUserIDWithCheck(login string, password string, ctx conte
 }
 
 func (p *Postgresql) SaveNewOrder(orderData entities.OrderData, ctx context.Context) error {
+	var userID int
 	time := orderData.UploadedAt.Time
-	_, err := p.store.ExecContext(ctx, `
+
+	err := p.store.QueryRowContext(ctx, `
 		INSERT INTO orders (user_id, order_number, status, accural, uploaded_at)
-		VALUES ($1, $2, $3, $4, $5)`,
-		orderData.UserID, orderData.Number, orderData.Status, orderData.Accural, time)
-	return err
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING user_id`,
+		orderData.UserID, orderData.Number, orderData.Status, orderData.Accural, time).Scan(&userID)
+
+	//check who uploaded this order first (conflict)
+	if err != nil {
+		if pqErr, ok := err.(*pgconn.PgError); ok && pqErr.Code == "23505" {
+			err = p.store.QueryRowContext(ctx, `
+				SELECT user_id FROM orders WHERE order_number = $1`,
+				orderData.Number).Scan(&userID)
+			if err != nil {
+				return err
+			}
+			if userID == orderData.UserID {
+				return gophermart_errors.MakeErrUserHasAlreadyUploadedThisOrder()
+			} else {
+				return gophermart_errors.MakeErrThisOrderWasUploadedByDifferentUser()
+			}
+		}
+		return err
+	}
+
+	return nil
 }
 
 func (p *Postgresql) UpdateOrder(orderData entities.OrderData, ctx context.Context) error {
