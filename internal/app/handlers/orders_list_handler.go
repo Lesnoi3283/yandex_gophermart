@@ -8,6 +8,7 @@ import (
 
 func (h *Handler) OrdersListHandler(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("Content-Type", "application/json")
 	//get userID
 	userID := r.Context().Value(middlewares.UserIDContextKey)
 	if userID == nil {
@@ -41,7 +42,6 @@ func (h *Handler) OrdersListHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonToRet)
 	}
 }
