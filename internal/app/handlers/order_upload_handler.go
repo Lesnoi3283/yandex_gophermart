@@ -154,7 +154,7 @@ func processOrder(accrualSystemAddress string, order entities.OrderData, storage
 			return
 		}
 	case "PROCESSING":
-		time.Sleep(1000 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 		processOrder(accrualSystemAddress, order, storage, logger, maxTry)
 	case "INVALID":
 		order.Status = entities.OrderStatusInvalid
@@ -164,7 +164,8 @@ func processOrder(accrualSystemAddress string, order entities.OrderData, storage
 			return
 		}
 	case "REGISTERED":
-		//todo кейс registered
+		time.Sleep(100 * time.Millisecond)
+		processOrder(accrualSystemAddress, order, storage, logger, maxTry)
 	default:
 		logger.Errorf("unknown order status was received from outside service: `%v`", respData.Status)
 		order.Status = entities.OrderStatusInvalid
