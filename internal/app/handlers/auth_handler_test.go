@@ -189,7 +189,10 @@ func TestHandler_AuthUser(t *testing.T) {
 				}
 				assert.Equal(t, true, wasJWTFound, "JWT cookie wasn`t found")
 			}
-			tt.args.w.Result().Body.Close()
+			err := tt.args.w.Result().Body.Close()
+			if err != nil {
+				sugarLogger.Errorf("Cant close response body: %v", err.Error())
+			}
 		})
 	}
 }

@@ -99,12 +99,13 @@ func processOrder(order entities.OrderData, storage *StorageInt, logger zap.Suga
 	resp, err := http.Get(targetURL)
 	if err != nil {
 		order.Status = entities.OrderStatusInvalid
+		logger.Errorf("error while making a request: %v", err.Error())
+
 		err = (*storage).UpdateOrder(order, ctx)
 		if err != nil {
 			logger.Errorf("error while updating order data in a storage: %v", err.Error())
 			return
 		}
-		logger.Errorf("error while making a request: %v", err.Error())
 		return
 	}
 
