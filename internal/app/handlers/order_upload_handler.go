@@ -112,7 +112,7 @@ func processOrder(accrualSystemAddress string, order entities.OrderData, storage
 
 	//get data from a response
 	respData := struct {
-		Order   int     `json:"order"`
+		Order   string  `json:"order"`
 		Status  string  `json:"status"`
 		Accural float64 `json:"accural"`
 	}{}

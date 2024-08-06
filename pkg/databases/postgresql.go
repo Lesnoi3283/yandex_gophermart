@@ -6,6 +6,7 @@ import (
 	"errors"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"strconv"
+	time2 "time"
 	"yandex_gophermart/pkg/entities"
 	gophermart_errors "yandex_gophermart/pkg/errors"
 	"yandex_gophermart/pkg/security"
@@ -135,9 +136,11 @@ func (p *Postgresql) GetOrdersList(userID int, ctx context.Context) ([]entities.
 	var orders []entities.OrderData
 	for rows.Next() {
 		var order entities.OrderData
-		if err := rows.Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.Accural, &order.UploadedAt.Time); err != nil {
+		var time time2.Time
+		if err := rows.Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.Accural, &time); err != nil {
 			return nil, err
 		}
+		order.UploadedAt.Time = time
 		orders = append(orders, order)
 	}
 	return orders, rows.Err()
