@@ -72,26 +72,26 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//process order
-	s := processOrder(h.AccrualSystemAddress, newOrder, &h.Storage, h.Logger, 1)
+	go processOrder(h.AccrualSystemAddress, newOrder, &h.Storage, h.Logger, 5)
 
 	//return
-	w.WriteHeader(s)
+	w.WriteHeader(http.StatusAccepted)
 }
 
-func processOrder(accrualSystemAddress string, order entities.OrderData, storage *StorageInt, logger zap.SugaredLogger, maxTry int) int {
-	//if maxTry == 0 {
-	//	return
-	//}
-	//maxTry--
+func processOrder(accrualSystemAddress string, order entities.OrderData, storage *StorageInt, logger zap.SugaredLogger, maxTry int) {
+	if maxTry == 0 {
+		return
+	}
+	maxTry--
 
-	////change order status
-	//order.Status = entities.OrderStatusProcessing
+	//change order status
+	order.Status = entities.OrderStatusProcessing
 	ctx := context.Background()
-	//err := (*storage).UpdateOrder(order, ctx)
-	//if err != nil {
-	//	logger.Errorf("error while updating order data in a storage: %v", err.Error())
-	//	return
-	//}
+	err := (*storage).UpdateOrder(order, ctx)
+	if err != nil {
+		logger.Errorf("error while updating order data in a storage: %v", err.Error())
+		return
+	}
 
 	//ask different service
 	targetURL := accrualSystemAddress + "/api/orders/" + order.Number
@@ -103,9 +103,9 @@ func processOrder(accrualSystemAddress string, order entities.OrderData, storage
 		err = (*storage).UpdateOrder(order, ctx)
 		if err != nil {
 			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return http.StatusInternalServerError
+			return
 		}
-		return 202
+		return
 	}
 
 	//get data from a response
@@ -120,22 +120,22 @@ func processOrder(accrualSystemAddress string, order entities.OrderData, storage
 		err = (*storage).UpdateOrder(order, ctx)
 		if err != nil {
 			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return 500
+			return
 		}
-		return 202
+		return
 	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
 		logger.Errorf("cant read a responce body: %v", err.Error())
-		return 500
+		return
 	}
 
 	err = json.Unmarshal(bodyBytes, &respData)
 	if err != nil {
 		logger.Errorf("cant unmurshal a responce body: %v", err.Error())
-		return 500
+		return
 	}
 
 	//update order
@@ -146,42 +146,35 @@ func processOrder(accrualSystemAddress string, order entities.OrderData, storage
 		err = (*storage).UpdateOrder(order, ctx)
 		if err != nil {
 			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return 202
+			return
 		}
 		err = (*storage).AddToBalance(order.UserID, order.Accural, ctx)
 		if err != nil {
 			logger.Errorf("cant increase user`s balance, err: %v", err.Error())
-			return 202
+			return
 		}
 	case "PROCESSING":
 		//time.Sleep(100 * time.Millisecond)
-		order.Status = entities.OrderStatusProcessing
-		ctx := context.Background()
-		err := (*storage).UpdateOrder(order, ctx)
-		if err != nil {
-			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return 202
-		}
+		//order.Status
 		//processOrder(accrualSystemAddress, order, storage, logger, maxTry)
 	case "INVALID":
 		order.Status = entities.OrderStatusInvalid
 		err = (*storage).UpdateOrder(order, ctx)
 		if err != nil {
 			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return 202
+			return
 		}
 	case "REGISTERED":
 		//time.Sleep(100 * time.Millisecond)
-		//processOrder(accrualSystemAddress, order, storage, logger, maxTry)
-		return 202
+		processOrder(accrualSystemAddress, order, storage, logger, maxTry)
 	default:
 		logger.Errorf("unknown order status was received from outside service: `%v`", respData.Status)
 		order.Status = entities.OrderStatusInvalid
 		err = (*storage).UpdateOrder(order, ctx)
 		if err != nil {
 			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return 202
+			return
 		}
 	}
-	return 202
+
 }
