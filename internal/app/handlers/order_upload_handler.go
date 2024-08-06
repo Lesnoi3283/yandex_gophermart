@@ -72,7 +72,7 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//process order
-	go processOrder(h.AccrualSystemAddress, newOrder, &h.Storage, h.Logger, 5)
+	go processOrder(h.AccrualSystemAddress, newOrder, &h.Storage, h.Logger, 1)
 
 	//return
 	w.WriteHeader(http.StatusAccepted)
@@ -84,14 +84,14 @@ func processOrder(accrualSystemAddress string, order entities.OrderData, storage
 	}
 	maxTry--
 
-	//change order status
-	order.Status = entities.OrderStatusProcessing
+	////change order status
+	//order.Status = entities.OrderStatusProcessing
 	ctx := context.Background()
-	err := (*storage).UpdateOrder(order, ctx)
-	if err != nil {
-		logger.Errorf("error while updating order data in a storage: %v", err.Error())
-		return
-	}
+	//err := (*storage).UpdateOrder(order, ctx)
+	//if err != nil {
+	//	logger.Errorf("error while updating order data in a storage: %v", err.Error())
+	//	return
+	//}
 
 	//ask different service
 	targetURL := accrualSystemAddress + "/api/orders/" + order.Number
@@ -155,7 +155,14 @@ func processOrder(accrualSystemAddress string, order entities.OrderData, storage
 		}
 	case "PROCESSING":
 		//time.Sleep(100 * time.Millisecond)
-		processOrder(accrualSystemAddress, order, storage, logger, maxTry)
+		order.Status = entities.OrderStatusProcessing
+		ctx := context.Background()
+		err := (*storage).UpdateOrder(order, ctx)
+		if err != nil {
+			logger.Errorf("error while updating order data in a storage: %v", err.Error())
+			return
+		}
+		//processOrder(accrualSystemAddress, order, storage, logger, maxTry)
 	case "INVALID":
 		order.Status = entities.OrderStatusInvalid
 		err = (*storage).UpdateOrder(order, ctx)
@@ -165,7 +172,8 @@ func processOrder(accrualSystemAddress string, order entities.OrderData, storage
 		}
 	case "REGISTERED":
 		//time.Sleep(100 * time.Millisecond)
-		processOrder(accrualSystemAddress, order, storage, logger, maxTry)
+		//processOrder(accrualSystemAddress, order, storage, logger, maxTry)
+		return
 	default:
 		logger.Errorf("unknown order status was received from outside service: `%v`", respData.Status)
 		order.Status = entities.OrderStatusInvalid
