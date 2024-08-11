@@ -7,7 +7,7 @@ import (
 )
 
 func (h *Handler) OrdersListHandler(w http.ResponseWriter, r *http.Request) {
-	h.Logger.Debug("OrderListHandler recieved a request")
+	h.Logger.Infof("OrderListHandler recieved a request")
 
 	w.Header().Set("Content-Type", "application/json")
 	//get userID
@@ -31,7 +31,7 @@ func (h *Handler) OrdersListHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	h.Logger.Debugf("orders amout from db: %d", len(orders))
+	h.Logger.Infof("orders amout from db: %d", len(orders))
 
 	//return
 	if len(orders) == 0 {
