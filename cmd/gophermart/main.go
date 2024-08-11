@@ -44,10 +44,10 @@ func main() {
 		sugar.Fatalf("db ping error (afterstart check): %v", err.Error())
 	}
 
-	sugar.Info("INFO t")
-	sugar.Error("ERROR t")
-	sugar.Debugf("DEBUG t")
-	sugar.Warnf("WARN t")
+	sugar.Infof("INFO t %s", sugar.Level().String())
+	sugar.Errorf("ERROR t %s", sugar.Level().String())
+	sugar.Debugf("DEBUG t %s", sugar.Level().String())
+	sugar.Warnf("WARN t %s", sugar.Level().String())
 
 	//router set and server start
 	router := handlers.NewRouter(*sugar, pg, cfg.AccrualSystemAddress)
