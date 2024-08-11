@@ -26,6 +26,10 @@ func NewPostgresql(connStr string) (*Postgresql, error) {
 	}, nil
 }
 
+func (p *Postgresql) Ping() error {
+	return p.store.Ping()
+}
+
 func (p *Postgresql) SetTables() error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS users (

@@ -29,7 +29,7 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 
 	//data set
 	correctUserID := 2
-	correctOrderNumBytes := []byte("1234567890")
+	correctOrderNumBytes := []byte("12345678903")
 
 	//wait group set
 	wg := sync.WaitGroup{}
@@ -59,7 +59,7 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 					storage.EXPECT().SaveNewOrder(gomock.Any(), gomock.Any()).Return(nil)
 					storage.EXPECT().UpdateOrder(gomock.Any(), gomock.Any()).DoAndReturn(func(order entities.OrderData, ctx context.Context) error {
 						wg.Done()
-						return errors.New("all good")
+						return errors.New("some test error")
 					})
 					return storage
 				}(),

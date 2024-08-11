@@ -37,6 +37,12 @@ func main() {
 	if err != nil {
 		sugar.Fatalf("error while setting tables in database, err: %v", err.Error())
 	}
+	err = pg.Ping()
+	if err != nil {
+		sugar.Infof("db started")
+	} else {
+		sugar.Fatalf("db ping error (afterstart check): %v", err.Error())
+	}
 
 	//router set and server start
 	router := handlers.NewRouter(*sugar, pg, cfg.AccrualSystemAddress)

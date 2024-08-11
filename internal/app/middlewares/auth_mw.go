@@ -3,6 +3,7 @@ package middlewares
 import (
 	"context"
 	"errors"
+	"github.com/golang-jwt/jwt/v4"
 	"go.uber.org/zap"
 	"net/http"
 	gophermarterrors "yandex_gophermart/pkg/errors"
@@ -45,6 +46,10 @@ func AuthMW(logger zap.SugaredLogger) func(handler http.Handler) http.Handler {
 					JWTHelper := security.NewJWTHelper()
 					userID, err := JWTHelper.GetUserID(JWTCookie.Value)
 					if errors.Is(err, gophermarterrors.MakeErrJWTTokenIsNotValid()) {
+						w.WriteHeader(http.StatusUnauthorized)
+						return
+					} else if errors.Is(err, jwt.ErrTokenExpired) {
+						logger.Errorf("JWT token expired, err: %v", err.Error())
 						w.WriteHeader(http.StatusUnauthorized)
 						return
 					} else if err != nil {
