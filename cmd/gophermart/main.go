@@ -44,6 +44,11 @@ func main() {
 		sugar.Fatalf("db ping error (afterstart check): %v", err.Error())
 	}
 
+	sugar.Info("INFO t")
+	sugar.Error("ERROR t")
+	sugar.Debugf("DEBUG t")
+	sugar.Warnf("WARN t")
+
 	//router set and server start
 	router := handlers.NewRouter(*sugar, pg, cfg.AccrualSystemAddress)
 	sugar.Fatalf("failed to start a server:", http.ListenAndServe(cfg.RunAddress, router).Error())
