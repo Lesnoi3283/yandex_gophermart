@@ -20,11 +20,13 @@ func AuthMW(logger zap.SugaredLogger) func(handler http.Handler) http.Handler {
 			switch r.URL.Path {
 			case "/api/user/register":
 				{
+					logger.Debugf("no auth needed, serving requst")
 					next.ServeHTTP(w, r)
 					return
 				}
 			case "/api/user/login":
 				{
+					logger.Debugf("no auth needed, serving requst")
 					next.ServeHTTP(w, r)
 					return
 				}
@@ -59,6 +61,7 @@ func AuthMW(logger zap.SugaredLogger) func(handler http.Handler) http.Handler {
 					}
 
 					//Put userID in request.ctx
+					logger.Debugf("user was authenticated")
 					ctxWithUserID := context.WithValue(r.Context(), UserIDContextKey, userID)
 					next.ServeHTTP(w, r.WithContext(ctxWithUserID))
 				}
