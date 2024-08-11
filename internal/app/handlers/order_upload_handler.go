@@ -4,14 +4,42 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"go.uber.org/zap"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 	"yandex_gophermart/internal/app/middlewares"
 	"yandex_gophermart/pkg/entities"
 	gophermart_errors "yandex_gophermart/pkg/errors"
 )
+
+func checkWithLuna(num string) (bool, error) {
+	sum := 0
+	double := false
+
+	//count sum
+	for i := len(num) - 1; i >= 0; i-- {
+		cur, err := strconv.Atoi(num[i : i+1])
+		if err != nil {
+			return false, fmt.Errorf("cant count a luna`s sum : %w", err)
+		}
+
+		if double {
+			cur = cur * 2
+			if cur > 9 {
+				cur = cur - 9
+			}
+		}
+
+		sum += cur
+		double = !double
+	}
+
+	//check
+	return sum%10 == 0, nil
+}
 
 func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -30,12 +58,17 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	//todo: check with Luna`s alg
 	orderNum := string(bodyBytes)
-	//orderNumInt, err := strconv.Atoi(orderNum)
-	//if err != nil {
-	//	h.Logger.Errorf("cant convert orderNum into int: %v", err.Error())
-	//	w.WriteHeader(http.StatusUnprocessableEntity)
-	//	return
-	//}
+	ok, err := checkWithLuna(orderNum)
+	if err != nil {
+		h.Logger.Errorf("cant do a Luna`s check: %v", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !ok {
+		h.Logger.Debugf("order num `%s` is incorrect", orderNum)
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		return
+	}
 
 	//get userID
 	userID := r.Context().Value(middlewares.UserIDContextKey)

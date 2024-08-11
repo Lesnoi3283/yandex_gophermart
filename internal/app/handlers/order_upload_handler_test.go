@@ -168,3 +168,53 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 		})
 	}
 }
+
+func Test_checkWithLuna(t *testing.T) {
+
+	tests := []struct {
+		name    string
+		arg     string
+		want    bool
+		wantErr bool
+	}{
+		{
+			name:    "normal 1",
+			arg:     "1230",
+			want:    true,
+			wantErr: false,
+		},
+		{
+			name:    "normal 2",
+			arg:     "12345678903",
+			want:    true,
+			wantErr: false,
+		},
+		{
+			name:    "incorrect num",
+			arg:     "1234567890",
+			want:    false,
+			wantErr: false,
+		},
+		{
+			name:    "not a num",
+			arg:     "123text03",
+			want:    false,
+			wantErr: true,
+		},
+		{
+			name:    "normal 3",
+			arg:     "5062821234567892",
+			want:    true,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := checkWithLuna(tt.arg)
+			if !tt.wantErr {
+				assert.NoError(t, err, "an error have happened (it should`nt)")
+			}
+			assert.Equalf(t, tt.want, got, "checkWithLuna(%v)", tt.arg)
+		})
+	}
+}
