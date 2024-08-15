@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"yandex_gophermart/config"
+	"yandex_gophermart/internal/app/accrual_daemon"
 	"yandex_gophermart/internal/app/handlers"
 	"yandex_gophermart/pkg/databases"
 )
@@ -45,9 +47,9 @@ func main() {
 	}
 
 	//start a accrual daemon
-	//ctxForAccrualDaemon := context.Background()
-	//go accrual_daemon.ProcessOrders(ctxForAccrualDaemon, cfg.AccrualSystemAddress, pg, *sugar)
-	//sugar.Infof("starting an accrual daemon")
+	ctxForAccrualDaemon := context.Background()
+	go accrual_daemon.ProcessOrders(ctxForAccrualDaemon, cfg.AccrualSystemAddress, pg, sugar)
+	sugar.Infof("starting an accrual daemon")
 
 	//router set and server start
 	router := handlers.NewRouter(*sugar, pg, cfg.AccrualSystemAddress)

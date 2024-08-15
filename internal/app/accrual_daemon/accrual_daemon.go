@@ -34,7 +34,7 @@ type respData struct {
 	Accural float64 `json:"accural"`
 }
 
-func askAccrualSystem(orderNum string, accrualSystemAddress string, logger zap.SugaredLogger) (respData, error) {
+func askAccrualSystem(orderNum string, accrualSystemAddress string, logger *zap.SugaredLogger) (respData, error) {
 	//make a request
 	targetURL := accrualSystemAddress + "/api/orders/" + orderNum
 	resp, err := http.Get(targetURL)
@@ -93,7 +93,7 @@ func askAccrualSystem(orderNum string, accrualSystemAddress string, logger zap.S
 }
 
 // ProcessOrders MUST be run as goroutine. It has an endless "for" loop. Use ctx to break it
-func ProcessOrders(ctx context.Context, accrualSystemAddress string, storage UnfinishedOrdersStorageInt, logger zap.SugaredLogger) {
+func ProcessOrders(ctx context.Context, accrualSystemAddress string, storage UnfinishedOrdersStorageInt, logger *zap.SugaredLogger) {
 
 	orders := make([]entities.OrderData, 0)
 	i := 0
