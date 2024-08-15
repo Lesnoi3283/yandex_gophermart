@@ -68,7 +68,6 @@ func (p *Postgresql) SetTables() error {
 	return nil
 }
 
-// todo: лучше объединять ошибки с помощью errors.Join() или fmt.Errorf("an error happend during..., err: %v), err.Error()) ?
 func (p *Postgresql) SaveUser(login string, passwordHash string, passwordSalt string, ctx context.Context) (int, error) {
 	var userID int
 
@@ -80,6 +79,7 @@ func (p *Postgresql) SaveUser(login string, passwordHash string, passwordSalt st
 		login, passwordHash, passwordSalt).Scan(&userID)
 
 	if errors.Is(err, sql.ErrNoRows) {
+		// "save user err: %v"
 		return 0, gophermart_errors.MakeErrUserAlreadyExists()
 	} else if err != nil {
 		return 0, err
@@ -172,6 +172,33 @@ func (p *Postgresql) GetOrdersList(userID int, ctx context.Context) ([]entities.
 		orders = append(orders, order)
 	}
 	return orders, rows.Err()
+}
+
+func (p *Postgresql) GetUnfinishedOrdersList(ctx context.Context) ([]entities.OrderData, error) {
+	rows, err := p.store.QueryContext(ctx, `
+		SELECT id, order_number, status
+		FROM orders
+		WHERE status IN ('NEW', 'PROCESSING')`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var orders []entities.OrderData
+	for rows.Next() {
+		var order entities.OrderData
+		err := rows.Scan(&order.ID, &order.Number, &order.Status)
+		if err != nil {
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return orders, nil
 }
 
 func (p *Postgresql) GetBalance(userID int, ctx context.Context) (entities.BalanceData, error) {

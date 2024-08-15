@@ -1,11 +1,8 @@
 package handlers
 
 import (
-	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"strconv"
@@ -104,110 +101,6 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//process order
-	go processOrder(h.AccrualSystemAddress, newOrder, &h.Storage, h.Logger, 5)
-
 	//return
 	w.WriteHeader(http.StatusAccepted)
-}
-
-func processOrder(accrualSystemAddress string, order entities.OrderData, storage *StorageInt, logger zap.SugaredLogger, maxTry int) {
-	if maxTry == 0 {
-		return
-	}
-	maxTry--
-
-	//change order status
-	order.Status = entities.OrderStatusProcessing
-	ctx := context.Background()
-	err := (*storage).UpdateOrder(order, ctx)
-	if err != nil {
-		logger.Errorf("error while updating order data in a storage: %v", err.Error())
-		return
-	}
-
-	//ask different service
-	targetURL := accrualSystemAddress + "/api/orders/" + order.Number
-	resp, err := http.Get(targetURL)
-	if err != nil {
-		order.Status = entities.OrderStatusInvalid
-		logger.Errorf("error while making a request: %v", err.Error())
-
-		err = (*storage).UpdateOrder(order, ctx)
-		if err != nil {
-			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return
-		}
-		return
-	}
-
-	//get data from a response
-	respData := struct {
-		Order   string  `json:"order"`
-		Status  string  `json:"status"`
-		Accural float64 `json:"accural"`
-	}{}
-
-	if resp.StatusCode != http.StatusOK {
-		order.Status = entities.OrderStatusInvalid
-		err = (*storage).UpdateOrder(order, ctx)
-		if err != nil {
-			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return
-		}
-		return
-	}
-
-	bodyBytes, err := io.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	if err != nil {
-		logger.Errorf("cant read a responce body: %v", err.Error())
-		return
-	}
-
-	err = json.Unmarshal(bodyBytes, &respData)
-	if err != nil {
-		logger.Errorf("cant unmurshal a responce body: %v", err.Error())
-		return
-	}
-
-	//update order
-	switch respData.Status {
-	case "PROCESSED":
-		order.Status = entities.OrderStatusProcessed
-		order.Accural = respData.Accural
-		err = (*storage).UpdateOrder(order, ctx)
-		if err != nil {
-			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return
-		}
-		err = (*storage).AddToBalance(order.UserID, order.Accural, ctx)
-		if err != nil {
-			logger.Errorf("cant increase user`s balance, err: %v", err.Error())
-			return
-		}
-	case "PROCESSING":
-		//time.Sleep(100 * time.Millisecond)
-		//order.Status
-		//processOrder(accrualSystemAddress, order, storage, logger, maxTry)
-	case "INVALID":
-		order.Status = entities.OrderStatusInvalid
-		err = (*storage).UpdateOrder(order, ctx)
-		if err != nil {
-			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return
-		}
-	case "REGISTERED":
-		//time.Sleep(100 * time.Millisecond)
-		processOrder(accrualSystemAddress, order, storage, logger, maxTry)
-	default:
-		logger.Errorf("unknown order status was received from outside service: `%v`", respData.Status)
-		order.Status = entities.OrderStatusInvalid
-		err = (*storage).UpdateOrder(order, ctx)
-		if err != nil {
-			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return
-		}
-	}
-
 }

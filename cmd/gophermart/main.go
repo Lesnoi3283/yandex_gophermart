@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"yandex_gophermart/config"
+	"yandex_gophermart/internal/app/accrual_daemon"
 	"yandex_gophermart/internal/app/handlers"
 	"yandex_gophermart/pkg/databases"
 )
@@ -44,14 +46,13 @@ func main() {
 		sugar.Infof("db started")
 	}
 
-	sugar.Infof("INFO t %s", sugar.Level().String())
-	sugar.Errorf("ERROR t %s", sugar.Level().String())
-	sugar.Debugf("DEBUG t %s", sugar.Level().String())
-	sugar.Warnf("WARN t %s", sugar.Level().String())
+	//start a accrual daemon
+	ctxForAccrualDaemon := context.Background()
+	go accrual_daemon.ProcessOrders(ctxForAccrualDaemon, cfg.AccrualSystemAddress, pg, *sugar)
+	sugar.Infof("starting an accrual daemon")
 
 	//router set and server start
 	router := handlers.NewRouter(*sugar, pg, cfg.AccrualSystemAddress)
 	sugar.Infof("starting server")
 	sugar.Fatalf("failed to start a server:", http.ListenAndServe(cfg.RunAddress, router).Error())
-
 }
