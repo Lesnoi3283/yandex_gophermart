@@ -39,7 +39,6 @@ func checkWithLuna(num string) (bool, error) {
 }
 
 func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
-
 	//get request data
 	bodyBytes, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -53,7 +52,9 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//todo: check with Luna`s alg
+	h.Logger.Infof("order upload, num: %v", string(bodyBytes))
+
+	//check with Luna`s alg
 	orderNum := string(bodyBytes)
 	ok, err := checkWithLuna(orderNum)
 	if err != nil {
