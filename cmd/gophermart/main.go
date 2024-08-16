@@ -78,6 +78,7 @@ loop:
 	for {
 
 		//get new unfinished orders
+		logger.Infof("TEST G i=%v len(orders)=%v", i, len(orders))
 		if i >= len(orders) {
 			var err error
 			orders, err = storage.GetUnfinishedOrdersList(ctx)
