@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 	"yandex_gophermart/config"
 	"yandex_gophermart/internal/app/accrual_daemon"
@@ -94,7 +95,6 @@ loop:
 		case <-ctx.Done():
 			break loop
 		default:
-			time.Sleep(time.Millisecond * 200)
 			logger.Infof("TEST GOROUTINE IS RUNNUNG, orders amount: %v", len(orders))
 
 			if len(orders) > 0 {
@@ -132,6 +132,22 @@ loop:
 						logger.Infof("TEST G Increased")
 
 						i++
+					}
+				case http.StatusTooManyRequests:
+					{
+						retryAfter := resp.Header.Get("Retry-After")
+						seconds, err := strconv.Atoi(retryAfter)
+						if err != nil {
+							date, err := time.Parse(time.RFC1123, retryAfter)
+							if err != nil {
+								logger.Errorf("TEST G error while parsing Retry-After: %v", err.Error())
+							}
+							time.Sleep(time.Until(date))
+						} else if retryAfter == "" {
+							time.Sleep(time.Second * 3)
+						} else {
+							time.Sleep(time.Duration(seconds))
+						}
 					}
 				}
 			}
