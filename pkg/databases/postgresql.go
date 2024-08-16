@@ -235,7 +235,7 @@ func (p *Postgresql) AddToBalance(userID int, amount float64, ctx context.Contex
 	return err
 }
 
-func (p *Postgresql) WithdrawFromBalance(userID int, orderID int, amount float64, ctx context.Context) error {
+func (p *Postgresql) WithdrawFromBalance(userID int, orderNum string, amount float64, ctx context.Context) error {
 	tx, err := p.store.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -255,6 +255,17 @@ func (p *Postgresql) WithdrawFromBalance(userID int, orderID int, amount float64
 	if currentBalance < amount {
 		tx.Rollback()
 		return gophermart_errors.MakeErrNotEnoughPoints()
+	}
+
+	// Get order ID by order number
+	var orderID int
+	err = tx.QueryRowContext(ctx, `
+		SELECT id 
+		FROM orders 
+		WHERE order_number = $1`, orderNum).Scan(&orderID)
+	if err != nil {
+		tx.Rollback()
+		return err
 	}
 
 	// Withdraw

@@ -153,7 +153,7 @@ func (mr *MockStorageIntMockRecorder) UpdateOrder(arg0, arg1 interface{}) *gomoc
 }
 
 // WithdrawFromBalance mocks base method.
-func (m *MockStorageInt) WithdrawFromBalance(arg0, arg1 int, arg2 float64, arg3 context.Context) error {
+func (m *MockStorageInt) WithdrawFromBalance(arg0 int, arg1 string, arg2 float64, arg3 context.Context) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "WithdrawFromBalance", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)

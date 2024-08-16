@@ -10,8 +10,8 @@ import (
 )
 
 type withdrawData struct {
-	OrderID int     `json:"order"`
-	Sum     float64 `json:"sum"`
+	OrderNum string  `json:"order"`
+	Sum      float64 `json:"sum"`
 }
 
 func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +46,7 @@ func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//withdraw from db
-	err = h.Storage.WithdrawFromBalance(userIDInt, data.OrderID, data.Sum, r.Context())
+	err = h.Storage.WithdrawFromBalance(userIDInt, data.OrderNum, data.Sum, r.Context())
 	if errors.Is(err, gophermarterrors.MakeErrNotEnoughPoints()) {
 		h.Logger.Debugf("Not enough money, err: %v", err)
 		w.WriteHeader(http.StatusPaymentRequired)

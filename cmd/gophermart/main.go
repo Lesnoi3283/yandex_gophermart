@@ -89,13 +89,13 @@ loop:
 			}
 			i = 0
 		}
-		logger.Infof("TEST G i=%v len(orders)=%v", i, len(orders))
+		//logger.Infof("TEST G i=%v len(orders)=%v", i, len(orders))
 
 		select {
 		case <-ctx.Done():
 			break loop
 		default:
-			logger.Infof("TEST GOROUTINE IS RUNNUNG, orders amount: %v", len(orders))
+			//logger.Infof("TEST GOROUTINE IS RUNNUNG, orders amount: %v", len(orders))
 
 			if len(orders) > 0 {
 				resp := someDifferentTestFunc(accrualSystemAddress, orders[i], logger)
