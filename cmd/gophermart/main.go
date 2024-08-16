@@ -44,8 +44,18 @@ func main() {
 		sugar.Infof("db started")
 	}
 
+	//start a accrual daemon
+	//go accrual_daemon.ProcessOrders(context.Background(), cfg.AccrualSystemAddress, pg, sugar)
+	//sugar.Infof("starting an accrual daemon")
+
+	go someTestGoroutine(sugar)
+
 	//router set and server start
 	router := handlers.NewRouter(*sugar, pg, cfg.AccrualSystemAddress)
 	sugar.Infof("starting server")
 	sugar.Fatalf("failed to start a server:", http.ListenAndServe(cfg.RunAddress, router).Error())
+}
+
+func someTestGoroutine(logger *zap.SugaredLogger) {
+	logger.Infof("TEST GOROUTINE")
 }

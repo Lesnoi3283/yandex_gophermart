@@ -1,10 +1,8 @@
 package handlers
 
 import (
-	"context"
 	"github.com/go-chi/chi"
 	"go.uber.org/zap"
-	"yandex_gophermart/internal/app/accrual_daemon"
 	"yandex_gophermart/internal/app/middlewares"
 	"yandex_gophermart/pkg/security"
 )
@@ -30,10 +28,6 @@ func NewRouter(logger zap.SugaredLogger, storage StorageInt, accrualSystemAddres
 	r.Get("/api/user/balance", handler.GetBalanceHandler)
 	r.Post("/api/user/withdraw", handler.WithdrawHandler)
 	r.Get("/api/user/withdrawals", handler.GetWithdrawals)
-
-	//start a accrual daemon
-	go accrual_daemon.ProcessOrders(context.Background(), accrualSystemAddress, storage, &logger)
-	logger.Infof("starting an accrual daemon")
 
 	return r
 }
