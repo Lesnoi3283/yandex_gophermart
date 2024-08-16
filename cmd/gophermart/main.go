@@ -93,11 +93,10 @@ loop:
 			break loop
 		default:
 			time.Sleep(time.Millisecond * 200)
-			smg, _ := storage.GetUnfinishedOrdersList(ctx)
-			logger.Infof("TEST GOROUTINE IS RUNNUNG, orders amount: %v", len(smg))
+			logger.Infof("TEST GOROUTINE IS RUNNUNG, orders amount: %v", len(orders))
 
-			if len(smg) > 0 {
-				resp := someDifferentTestFunc(accrualSystemAddress, smg[i], logger)
+			if len(orders) > 0 {
+				resp := someDifferentTestFunc(accrualSystemAddress, orders[i], logger)
 				switch resp.StatusCode {
 				case http.StatusOK:
 					{
@@ -111,9 +110,10 @@ loop:
 						if err != nil {
 							logger.Errorf("TEST G cant unmurshal a responce body: %v", err.Error())
 						}
+						logger.Infof("TEST G ask data: %#v", orders[i])
 						logger.Infof("TEST G resp data: %#v", data)
 
-						order := smg[i]
+						order := orders[i]
 						order.Status = data.Status
 						order.Accural = data.Accural
 						err = storage.UpdateOrder(order, ctx)
