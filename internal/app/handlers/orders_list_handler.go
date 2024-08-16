@@ -7,7 +7,6 @@ import (
 )
 
 func (h *Handler) OrdersListHandler(w http.ResponseWriter, r *http.Request) {
-	h.Logger.Infof("OrderListHandler received a request")
 
 	w.Header().Set("Content-Type", "application/json")
 	//get userID

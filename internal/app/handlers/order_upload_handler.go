@@ -51,9 +51,7 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	h.Logger.Infof("order upload, num: %v", string(bodyBytes))
-
+	
 	//check with Luna`s alg
 	orderNum := string(bodyBytes)
 	ok, err := checkWithLuna(orderNum)

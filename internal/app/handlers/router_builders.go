@@ -19,7 +19,7 @@ func NewRouter(logger zap.SugaredLogger, storage StorageInt, accrualSystemAddres
 
 	//middlewares
 	r.Use(middlewares.AuthMW(logger))
-	r.Use(middlewares.LoggerMW(logger))
+	//r.Use(middlewares.LoggerMW(logger))
 
 	//handlers
 	r.Post("/api/user/register", handler.RegisterUser)
