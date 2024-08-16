@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"go.uber.org/zap"
 	"log"
 	"net/http"
+	"time"
 	"yandex_gophermart/config"
 	"yandex_gophermart/internal/app/handlers"
 	"yandex_gophermart/pkg/databases"
@@ -48,7 +50,7 @@ func main() {
 	//go accrual_daemon.ProcessOrders(context.Background(), cfg.AccrualSystemAddress, pg, sugar)
 	//sugar.Infof("starting an accrual daemon")
 
-	go someTestGoroutine(sugar)
+	go someTestGoroutine(context.Background(), sugar)
 
 	//router set and server start
 	router := handlers.NewRouter(*sugar, pg, cfg.AccrualSystemAddress)
@@ -56,6 +58,16 @@ func main() {
 	sugar.Fatalf("failed to start a server:", http.ListenAndServe(cfg.RunAddress, router).Error())
 }
 
-func someTestGoroutine(logger *zap.SugaredLogger) {
-	logger.Infof("TEST GOROUTINE")
+func someTestGoroutine(ctx context.Context, logger *zap.SugaredLogger) {
+	logger.Infof("TEST GOROUTINE STARTED")
+loop:
+	for {
+		select {
+		case <-ctx.Done():
+			break loop
+		default:
+			time.Sleep(time.Millisecond * 200)
+			logger.Infof("TEST GOROUTINE IS RUNNUNG")
+		}
+	}
 }
