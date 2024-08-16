@@ -121,6 +121,7 @@ loop:
 							logger.Errorf("TEST G err: %v", err.Error())
 						}
 						logger.Infof("TEST G Updated")
+						i++
 					}
 				}
 			}
