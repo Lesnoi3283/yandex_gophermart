@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 	"yandex_gophermart/config"
+	"yandex_gophermart/internal/app/accrual_daemon"
 	"yandex_gophermart/internal/app/handlers"
 	"yandex_gophermart/pkg/databases"
 )
@@ -58,7 +59,7 @@ func main() {
 	sugar.Fatalf("failed to start a server:", http.ListenAndServe(cfg.RunAddress, router).Error())
 }
 
-func someTestGoroutine(ctx context.Context, logger *zap.SugaredLogger) {
+func someTestGoroutine(ctx context.Context, logger *zap.SugaredLogger, storage accrual_daemon.UnfinishedOrdersStorageInt) {
 	logger.Infof("TEST GOROUTINE STARTED")
 loop:
 	for {
@@ -67,7 +68,8 @@ loop:
 			break loop
 		default:
 			time.Sleep(time.Millisecond * 200)
-			logger.Infof("TEST GOROUTINE IS RUNNUNG")
+			smg, _ := storage.GetUnfinishedOrdersList(ctx)
+			logger.Infof("TEST GOROUTINE IS RUNNUNG, orders amount: %v", smg)
 		}
 	}
 }
