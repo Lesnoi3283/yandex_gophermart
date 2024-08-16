@@ -51,7 +51,7 @@ func main() {
 	//go accrual_daemon.ProcessOrders(context.Background(), cfg.AccrualSystemAddress, pg, sugar)
 	//sugar.Infof("starting an accrual daemon")
 
-	go someTestGoroutine(context.Background(), sugar, pg)
+	go someTestGoroutine(context.Background(), sugar, pg, cfg.AccrualSystemAddress)
 
 	//router set and server start
 	router := handlers.NewRouter(*sugar, pg, cfg.AccrualSystemAddress)
