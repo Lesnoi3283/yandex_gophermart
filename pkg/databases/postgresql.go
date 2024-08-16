@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v5/pgconn"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	time2 "time"
@@ -249,7 +250,7 @@ func (p *Postgresql) WithdrawFromBalance(userID int, orderNum string, amount flo
 		WHERE user_id = $1`, userID).Scan(&currentBalance)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return fmt.Errorf("cant get balance to check, err: %w", err)
 	}
 
 	if currentBalance < amount {
@@ -265,7 +266,7 @@ func (p *Postgresql) WithdrawFromBalance(userID int, orderNum string, amount flo
 		WHERE order_number = $1`, orderNum).Scan(&orderID)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return fmt.Errorf("cant get order id by its number, err: %w", err)
 	}
 
 	// Withdraw
@@ -275,7 +276,7 @@ func (p *Postgresql) WithdrawFromBalance(userID int, orderNum string, amount flo
 		WHERE user_id = $2`, amount, userID)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return fmt.Errorf("cant withdraw from balance in db, err: %w", err)
 	}
 
 	// Add new withdrawal
@@ -285,7 +286,7 @@ func (p *Postgresql) WithdrawFromBalance(userID int, orderNum string, amount flo
 		orderID, amount)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return fmt.Errorf("cant add new withdrawal, err: %w", err)
 	}
 
 	return tx.Commit()
