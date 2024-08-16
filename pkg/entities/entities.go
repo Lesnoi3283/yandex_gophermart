@@ -59,7 +59,7 @@ type BalanceData struct {
 }
 
 type WithdrawalData struct {
-	OrderNum    int         `json:"order"`
+	OrderNum    string      `json:"order"`
 	Sum         float64     `json:"sum"`
 	ProcessedAt TimeRFC3339 `json:"processed_at"`
 }

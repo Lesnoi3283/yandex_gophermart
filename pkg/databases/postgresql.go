@@ -54,7 +54,8 @@ func (p *Postgresql) SetTables() error {
 		);`,
 		`CREATE TABLE IF NOT EXISTS withdrawals (
 			id SERIAL PRIMARY KEY,
-			order_id INTEGER,
+			order_num INTEGER,
+			user_id INTEGER,
 			amount FLOAT,
 			processed_at TIMESTAMP
 		);`,
@@ -218,7 +219,7 @@ func (p *Postgresql) GetBalance(userID int, ctx context.Context) (entities.Balan
 	err = p.store.QueryRowContext(ctx, `
 		SELECT COALESCE(SUM(amount), 0) 
 		FROM withdrawals 
-		WHERE order_id IN (SELECT id FROM orders WHERE user_id = $1)`, userID).Scan(&balance.Withdrawn)
+		WHERE user_id = $1`, userID).Scan(&balance.Withdrawn)
 	if err != nil {
 		return balance, err
 	}
@@ -258,17 +259,6 @@ func (p *Postgresql) WithdrawFromBalance(userID int, orderNum string, amount flo
 		return gophermart_errors.MakeErrNotEnoughPoints()
 	}
 
-	// Get order ID by order number
-	var orderID int
-	err = tx.QueryRowContext(ctx, `
-		SELECT id 
-		FROM orders 
-		WHERE order_number = $1`, orderNum).Scan(&orderID)
-	if err != nil {
-		tx.Rollback()
-		return fmt.Errorf("cant get order id by its number, err: %w", err)
-	}
-
 	// Withdraw
 	_, err = tx.ExecContext(ctx, `
 		UPDATE balances 
@@ -281,9 +271,9 @@ func (p *Postgresql) WithdrawFromBalance(userID int, orderNum string, amount flo
 
 	// Add new withdrawal
 	_, err = tx.ExecContext(ctx, `
-		INSERT INTO withdrawals (order_id, amount, processed_at) 
-		VALUES ($1, $2, now())`,
-		orderID, amount)
+		INSERT INTO withdrawals (order_num, user_id, amount, processed_at) 
+		VALUES ($1, $2,, $3, now())`,
+		orderNum, userID, amount)
 	if err != nil {
 		tx.Rollback()
 		return fmt.Errorf("cant add new withdrawal, err: %w", err)
@@ -294,10 +284,8 @@ func (p *Postgresql) WithdrawFromBalance(userID int, orderNum string, amount flo
 
 func (p *Postgresql) GetWithdrawals(userID int, ctx context.Context) ([]entities.WithdrawalData, error) {
 	rows, err := p.store.QueryContext(ctx, `
-		SELECT w.order_id, w.amount, w.processed_at 
-		FROM withdrawals w
-		JOIN orders o ON w.order_id = o.id
-		WHERE o.user_id = $1`, userID)
+		SELECT order_num, amount, processed_at 
+		FROM withdrawals user_id = $1`, userID)
 	if err != nil {
 		return nil, err
 	}

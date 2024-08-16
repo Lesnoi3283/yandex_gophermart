@@ -29,11 +29,11 @@ func TestHandler_WithdrawHandler(t *testing.T) {
 
 	//data set
 	correctUserID := 1
-	correctOrderID := 2377225624
+	correctOrderID := "2377225624"
 	correctSum := 750.0
 	makeRequestBody := func() io.Reader {
 		data := struct {
-			Order int
+			Order string
 			Sum   float64
 		}{
 			Order: correctOrderID,
