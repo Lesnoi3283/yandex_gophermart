@@ -12,6 +12,7 @@ import (
 	"yandex_gophermart/internal/app/accrual_daemon"
 	"yandex_gophermart/internal/app/handlers"
 	"yandex_gophermart/pkg/databases"
+	"yandex_gophermart/pkg/entities"
 )
 
 func main() {
@@ -80,13 +81,7 @@ loop:
 			logger.Infof("TEST GOROUTINE IS RUNNUNG, orders amount: %v", len(smg))
 
 			if len(smg) > 0 {
-				targetURL := accrualSystemAddress + "/api/orders/" + smg[0].Number
-				resp, err := http.Get(targetURL)
-				if err != nil {
-					logger.Error("TEST G err : %v", err.Error())
-				}
-				logger.Infof("TEST G resp: %#v", resp)
-
+				resp := someDifferentTestFunc(accrualSystemAddress, smg[0], logger)
 				switch resp.StatusCode {
 				case http.StatusOK:
 					{
@@ -116,4 +111,14 @@ loop:
 
 		}
 	}
+}
+
+func someDifferentTestFunc(accrualSystemAddress string, smg entities.OrderData, logger *zap.SugaredLogger) *http.Response {
+	targetURL := accrualSystemAddress + "/api/orders/" + smg.Number
+	resp, err := http.Get(targetURL)
+	if err != nil {
+		logger.Error("TEST G err : %v", err.Error())
+	}
+	logger.Infof("TEST G resp: %#v", resp)
+	return resp
 }
