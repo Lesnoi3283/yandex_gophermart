@@ -101,6 +101,15 @@ loop:
 							logger.Errorf("TEST G cant unmurshal a responce body: %v", err.Error())
 						}
 						logger.Infof("TEST G resp data: %#v", data)
+
+						order := smg[0]
+						order.Status = data.Status
+						order.Accural = data.Accural
+						err = storage.UpdateOrder(order, ctx)
+						if err != nil {
+							logger.Errorf("TEST G err: %v", err.Error())
+						}
+						logger.Infof("TEST G Updated")
 					}
 				}
 			}
