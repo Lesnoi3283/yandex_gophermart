@@ -272,7 +272,7 @@ func (p *Postgresql) WithdrawFromBalance(userID int, orderNum string, amount flo
 	// Add new withdrawal
 	_, err = tx.ExecContext(ctx, `
 		INSERT INTO withdrawals (order_num, user_id, amount, processed_at) 
-		VALUES ($1, $2,, $3, now())`,
+		VALUES ($1, $2, $3, now())`,
 		orderNum, userID, amount)
 	if err != nil {
 		tx.Rollback()
@@ -285,7 +285,7 @@ func (p *Postgresql) WithdrawFromBalance(userID int, orderNum string, amount flo
 func (p *Postgresql) GetWithdrawals(userID int, ctx context.Context) ([]entities.WithdrawalData, error) {
 	rows, err := p.store.QueryContext(ctx, `
 		SELECT order_num, amount, processed_at 
-		FROM withdrawals user_id = $1`, userID)
+		FROM withdrawals WHERE user_id = $1`, userID)
 	if err != nil {
 		return nil, err
 	}
