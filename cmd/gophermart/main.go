@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"go.uber.org/zap"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -59,6 +61,12 @@ func main() {
 	sugar.Fatalf("failed to start a server:", http.ListenAndServe(cfg.RunAddress, router).Error())
 }
 
+type respData struct {
+	Order   string  `json:"order"`
+	Status  string  `json:"status"`
+	Accural float64 `json:"accural"`
+}
+
 func someTestGoroutine(ctx context.Context, logger *zap.SugaredLogger, storage accrual_daemon.UnfinishedOrdersStorageInt, accrualSystemAddress string) {
 	logger.Infof("TEST GOROUTINE STARTED")
 loop:
@@ -69,7 +77,7 @@ loop:
 		default:
 			time.Sleep(time.Millisecond * 200)
 			smg, _ := storage.GetUnfinishedOrdersList(ctx)
-			logger.Infof("TEST GOROUTINE IS RUNNUNG, orders amount: %v", smg)
+			logger.Infof("TEST GOROUTINE IS RUNNUNG, orders amount: %v", len(smg))
 
 			if len(smg) > 0 {
 				targetURL := accrualSystemAddress + "/api/orders/" + smg[0].Number
@@ -78,6 +86,23 @@ loop:
 					logger.Error("TEST G err : %v", err.Error())
 				}
 				logger.Infof("TEST G resp: %#v", resp)
+
+				switch resp.StatusCode {
+				case http.StatusOK:
+					{
+						bodyBytes, err := io.ReadAll(resp.Body)
+						defer resp.Body.Close()
+						if err != nil {
+							logger.Errorf("TEST G cant read a responce body: %v", err.Error())
+						}
+						data := respData{}
+						err = json.Unmarshal(bodyBytes, &data)
+						if err != nil {
+							logger.Errorf("TEST G cant unmurshal a responce body: %v", err.Error())
+						}
+						logger.Infof("TEST G resp data: %#v", data)
+					}
+				}
 			}
 
 		}
