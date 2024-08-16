@@ -27,7 +27,7 @@ func NewRouter(logger zap.SugaredLogger, storage StorageInt, accrualSystemAddres
 	r.Post("/api/user/orders", handler.OrderUploadHandler)
 	r.Get("/api/user/orders", handler.OrdersListHandler)
 	r.Get("/api/user/balance", handler.GetBalanceHandler)
-	r.Post("/api/user/withdraw", handler.WithdrawHandler)
+	r.Post("/api/user/balance/withdraw", handler.WithdrawHandler)
 	r.Get("/api/user/withdrawals", handler.GetWithdrawals)
 
 	return r
