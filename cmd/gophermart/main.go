@@ -47,8 +47,7 @@ func main() {
 	}
 
 	//start a accrual daemon
-	ctxForAccrualDaemon := context.Background()
-	go accrual_daemon.ProcessOrders(ctxForAccrualDaemon, cfg.AccrualSystemAddress, pg, sugar)
+	go accrual_daemon.ProcessOrders(context.Background(), cfg.AccrualSystemAddress, pg, sugar)
 	sugar.Infof("starting an accrual daemon")
 
 	//router set and server start

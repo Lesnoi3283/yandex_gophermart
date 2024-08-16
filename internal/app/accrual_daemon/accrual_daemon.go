@@ -99,7 +99,7 @@ func ProcessOrders(ctx context.Context, accrualSystemAddress string, storage Unf
 	i := 0
 
 loop:
-	for k := i; k < 20; k++ {
+	for {
 		//check if goroutine has to die
 		select {
 		case <-ctx.Done():
