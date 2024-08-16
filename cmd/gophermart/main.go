@@ -123,6 +123,16 @@ loop:
 							logger.Errorf("TEST G err: %v", err.Error())
 						}
 						logger.Infof("TEST G Updated")
+
+						//increase users`s balance
+						err = storage.AddToBalance(order.UserID, order.Accural, ctx)
+						if err != nil {
+							logger.Errorf("error while increasing users balance in a storage: %v", err.Error())
+							i++
+							continue
+						}
+						logger.Infof("TEST G Increased")
+
 						i++
 					}
 				}
