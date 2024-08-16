@@ -35,7 +35,7 @@ func (m *MockStorageInt) EXPECT() *MockStorageIntMockRecorder {
 	return m.recorder
 }
 
-// AddRoBalance mocks base method.
+// AddToBalance mocks base method.
 func (m *MockStorageInt) AddToBalance(arg0 int, arg1 float64, arg2 context.Context) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddToBalance", arg0, arg1, arg2)
@@ -43,8 +43,8 @@ func (m *MockStorageInt) AddToBalance(arg0 int, arg1 float64, arg2 context.Conte
 	return ret0
 }
 
-// AddRoBalance indicates an expected call of AddRoBalance.
-func (mr *MockStorageIntMockRecorder) AddRoBalance(arg0, arg1, arg2 interface{}) *gomock.Call {
+// AddToBalance indicates an expected call of AddToBalance.
+func (mr *MockStorageIntMockRecorder) AddToBalance(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddToBalance", reflect.TypeOf((*MockStorageInt)(nil).AddToBalance), arg0, arg1, arg2)
 }
@@ -77,6 +77,21 @@ func (m *MockStorageInt) GetOrdersList(arg0 int, arg1 context.Context) ([]entiti
 func (mr *MockStorageIntMockRecorder) GetOrdersList(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrdersList", reflect.TypeOf((*MockStorageInt)(nil).GetOrdersList), arg0, arg1)
+}
+
+// GetUnfinishedOrdersList mocks base method.
+func (m *MockStorageInt) GetUnfinishedOrdersList(arg0 context.Context) ([]entities.OrderData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUnfinishedOrdersList", arg0)
+	ret0, _ := ret[0].([]entities.OrderData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUnfinishedOrdersList indicates an expected call of GetUnfinishedOrdersList.
+func (mr *MockStorageIntMockRecorder) GetUnfinishedOrdersList(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUnfinishedOrdersList", reflect.TypeOf((*MockStorageInt)(nil).GetUnfinishedOrdersList), arg0)
 }
 
 // GetUserIDWithCheck mocks base method.

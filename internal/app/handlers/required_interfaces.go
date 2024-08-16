@@ -12,6 +12,7 @@ import (
 type StorageInt interface {
 	SaveUser(login string, passwordHash string, passwordSalt string, ctx context.Context) (int, error) //int - ID
 	GetUserIDWithCheck(login string, passwordHash string, ctx context.Context) (int, error)            //int - ID
+	GetUnfinishedOrdersList(ctx context.Context) ([]entities.OrderData, error)
 	SaveNewOrder(orderData entities.OrderData, ctx context.Context) error
 	UpdateOrder(orderData entities.OrderData, ctx context.Context) error
 	GetOrdersList(userID int, ctx context.Context) ([]entities.OrderData, error)
