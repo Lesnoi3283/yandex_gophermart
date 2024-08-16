@@ -119,7 +119,7 @@ func (p *Postgresql) SaveNewOrder(orderData entities.OrderData, ctx context.Cont
 		INSERT INTO orders (user_id, order_number, status, accural, uploaded_at)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING user_id`,
-		orderData.UserID, orderData.Number, orderData.Status, orderData.Accural, time).Scan(&userID)
+		orderData.UserID, orderData.Number, orderData.Status, orderData.Accrual, time).Scan(&userID)
 
 	//check who uploaded this order first (conflict)
 	if err != nil {
@@ -147,7 +147,7 @@ func (p *Postgresql) UpdateOrder(orderData entities.OrderData, ctx context.Conte
 		UPDATE orders 
 		SET status = $1, accural = $2, uploaded_at = $3
 		WHERE id = $4 AND user_id = $5`,
-		orderData.Status, orderData.Accural, orderData.UploadedAt.Time, orderData.ID, orderData.UserID)
+		orderData.Status, orderData.Accrual, orderData.UploadedAt.Time, orderData.ID, orderData.UserID)
 	return err
 }
 
@@ -165,7 +165,7 @@ func (p *Postgresql) GetOrdersList(userID int, ctx context.Context) ([]entities.
 	for rows.Next() {
 		var order entities.OrderData
 		var time time2.Time
-		if err := rows.Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.Accural, &time); err != nil {
+		if err := rows.Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.Accrual, &time); err != nil {
 			return nil, err
 		}
 		order.UploadedAt.Time = time
@@ -187,7 +187,7 @@ func (p *Postgresql) GetUnfinishedOrdersList(ctx context.Context) ([]entities.Or
 	var orders []entities.OrderData
 	for rows.Next() {
 		var order entities.OrderData
-		err := rows.Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.Accural, &order.UploadedAt.Time)
+		err := rows.Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.Accrual, &order.UploadedAt.Time)
 		if err != nil {
 			return nil, err
 		}

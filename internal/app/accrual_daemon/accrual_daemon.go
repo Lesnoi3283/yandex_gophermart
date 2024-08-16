@@ -140,7 +140,7 @@ loop:
 		//update order in a storage
 		orderData := orders[i]
 		orderData.Status = data.Status
-		orderData.Accural = data.Accural
+		orderData.Accrual = data.Accural
 		err = storage.UpdateOrder(orderData, ctx)
 		if err != nil {
 			logger.Errorf("error while updating order data in a storage: %v", err.Error())
@@ -149,7 +149,7 @@ loop:
 		}
 
 		//increase users`s balance
-		err = storage.AddToBalance(orderData.UserID, orderData.Accural, ctx)
+		err = storage.AddToBalance(orderData.UserID, orderData.Accrual, ctx)
 		if err != nil {
 			logger.Errorf("error while increasing users balance in a storage: %v", err.Error())
 			i++

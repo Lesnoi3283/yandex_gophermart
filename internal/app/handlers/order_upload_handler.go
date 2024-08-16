@@ -87,7 +87,7 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 		UserID:     userIDInt,
 		Number:     orderNum,
 		Status:     entities.OrderStatusNew,
-		Accural:    0,
+		Accrual:    0,
 		UploadedAt: entities.TimeRFC3339{Time: time.Now()},
 	}
 

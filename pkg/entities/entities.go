@@ -46,7 +46,7 @@ type OrderData struct {
 	UserID     int         `json:"-"`
 	Number     string      `json:"number"`
 	Status     string      `json:"status"`
-	Accural    float64     `json:"accural"`
+	Accrual    float64     `json:"accrual"`
 	UploadedAt TimeRFC3339 `json:"uploaded_at"`
 }
 

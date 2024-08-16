@@ -117,7 +117,7 @@ loop:
 
 						order := orders[i]
 						order.Status = data.Status
-						order.Accural = data.Accrual
+						order.Accrual = data.Accrual
 						err = storage.UpdateOrder(order, ctx)
 						if err != nil {
 							logger.Errorf("TEST G err: %v", err.Error())
@@ -125,7 +125,7 @@ loop:
 						logger.Infof("TEST G Updated")
 
 						//increase users`s balance
-						err = storage.AddToBalance(order.UserID, order.Accural, ctx)
+						err = storage.AddToBalance(order.UserID, order.Accrual, ctx)
 						if err != nil {
 							logger.Errorf("error while increasing users balance in a storage: %v", err.Error())
 						}
