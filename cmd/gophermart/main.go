@@ -9,8 +9,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strconv"
-	"time"
 	"yandex_gophermart/config"
 	"yandex_gophermart/internal/app/accrual_daemon"
 	"yandex_gophermart/internal/app/handlers"
@@ -108,19 +106,19 @@ func askAccrualSystem(orderNum string, accrualSystemAddress string, logger *zap.
 		}
 	case http.StatusTooManyRequests:
 		{
-			retryAfter := resp.Header.Get("Retry-After")
-			seconds, err := strconv.Atoi(retryAfter)
-			if err != nil {
-				date, err := time.Parse(time.RFC1123, retryAfter)
-				if err != nil {
-					return respData{}, fmt.Errorf("cant parse a retry-after header")
-				}
-				time.Sleep(time.Until(date))
-			} else if retryAfter == "" {
-				time.Sleep(time.Second * 3)
-			} else {
-				time.Sleep(time.Duration(seconds))
-			}
+			//retryAfter := resp.Header.Get("Retry-After")
+			//seconds, err := strconv.Atoi(retryAfter)
+			//if err != nil {
+			//	date, err := time.Parse(time.RFC1123, retryAfter)
+			//	if err != nil {
+			//		return respData{}, fmt.Errorf("cant parse a retry-after header")
+			//	}
+			//	time.Sleep(time.Until(date))
+			//} else if retryAfter == "" {
+			//	time.Sleep(time.Second * 3)
+			//} else {
+			//	time.Sleep(time.Duration(seconds))
+			//}
 			return respData{}, gophermart_errors.MakeErrNeedToResendRequestAccrual()
 		}
 
@@ -168,6 +166,9 @@ loop:
 			continue
 		} else if errors.Is(err, gophermart_errors.MakeErrNeedToResendRequestAccrual()) {
 			//DONT INCREASE AN "i" HERE!
+
+			//i ll increase it just for test
+			i++
 			continue
 		} else if err != nil {
 			logger.Warnf("cant process an order with id `%v`, err: %v", orders[i].ID, err.Error())
