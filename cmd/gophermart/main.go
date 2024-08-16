@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 	"yandex_gophermart/config"
 	"yandex_gophermart/internal/app/accrual_daemon"
 	"yandex_gophermart/internal/app/handlers"
@@ -91,7 +92,7 @@ loop:
 		case <-ctx.Done():
 			break loop
 		default:
-			//time.Sleep(time.Millisecond * 200)
+			time.Sleep(time.Millisecond * 200)
 			smg, _ := storage.GetUnfinishedOrdersList(ctx)
 			logger.Infof("TEST GOROUTINE IS RUNNUNG, orders amount: %v", len(smg))
 
