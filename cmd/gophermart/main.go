@@ -65,7 +65,7 @@ func main() {
 type respData struct {
 	Order   string  `json:"order"`
 	Status  string  `json:"status"`
-	Accural float64 `json:"accural"`
+	Accrual float64 `json:"accrual"`
 }
 
 func someTestGoroutine(ctx context.Context, logger *zap.SugaredLogger, storage accrual_daemon.UnfinishedOrdersStorageInt, accrualSystemAddress string) {
@@ -117,7 +117,7 @@ loop:
 
 						order := orders[i]
 						order.Status = data.Status
-						order.Accural = data.Accural
+						order.Accural = data.Accrual
 						err = storage.UpdateOrder(order, ctx)
 						if err != nil {
 							logger.Errorf("TEST G err: %v", err.Error())
