@@ -187,7 +187,7 @@ func (p *Postgresql) GetUnfinishedOrdersList(ctx context.Context) ([]entities.Or
 	var orders []entities.OrderData
 	for rows.Next() {
 		var order entities.OrderData
-		err := rows.Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.Accural, &order.UploadedAt)
+		err := rows.Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.Accural, &order.UploadedAt.Time)
 		if err != nil {
 			return nil, err
 		}
