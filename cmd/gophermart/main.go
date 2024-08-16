@@ -80,6 +80,7 @@ loop:
 		//get new unfinished orders
 		if i >= len(orders) {
 			var err error
+			orders = make([]entities.OrderData, 0)
 			orders, err = storage.GetUnfinishedOrdersList(ctx)
 			if err != nil {
 				logger.Errorf("cant get unfinished orders from db, err: %v", err.Error())

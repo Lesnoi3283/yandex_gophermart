@@ -176,7 +176,7 @@ func (p *Postgresql) GetOrdersList(userID int, ctx context.Context) ([]entities.
 
 func (p *Postgresql) GetUnfinishedOrdersList(ctx context.Context) ([]entities.OrderData, error) {
 	rows, err := p.store.QueryContext(ctx, `
-		SELECT id, order_number, status
+		SELECT id, user_id, order_number, status, accural, uploaded_at 
 		FROM orders
 		WHERE status IN ('NEW', 'PROCESSING')`)
 	if err != nil {
@@ -187,7 +187,7 @@ func (p *Postgresql) GetUnfinishedOrdersList(ctx context.Context) ([]entities.Or
 	var orders []entities.OrderData
 	for rows.Next() {
 		var order entities.OrderData
-		err := rows.Scan(&order.ID, &order.Number, &order.Status)
+		err := rows.Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.Accural, &order.UploadedAt)
 		if err != nil {
 			return nil, err
 		}
