@@ -59,7 +59,7 @@ func main() {
 	sugar.Fatalf("failed to start a server:", http.ListenAndServe(cfg.RunAddress, router).Error())
 }
 
-func someTestGoroutine(ctx context.Context, logger *zap.SugaredLogger, storage accrual_daemon.UnfinishedOrdersStorageInt) {
+func someTestGoroutine(ctx context.Context, logger *zap.SugaredLogger, storage accrual_daemon.UnfinishedOrdersStorageInt, accrualSystemAddress string) {
 	logger.Infof("TEST GOROUTINE STARTED")
 loop:
 	for {
@@ -70,6 +70,16 @@ loop:
 			time.Sleep(time.Millisecond * 200)
 			smg, _ := storage.GetUnfinishedOrdersList(ctx)
 			logger.Infof("TEST GOROUTINE IS RUNNUNG, orders amount: %v", smg)
+
+			if len(smg) > 0 {
+				targetURL := accrualSystemAddress + "/api/orders/" + smg[0].Number
+				resp, err := http.Get(targetURL)
+				if err != nil {
+					logger.Error("TEST G err : %v", err.Error())
+				}
+				logger.Infof("TEST G resp: %#v", resp)
+			}
+
 		}
 	}
 }
