@@ -180,8 +180,6 @@ func TestHandler_AuthUser(t *testing.T) {
 				wasJWTFound := false
 				resp := tt.args.w.Result()
 				cookies := resp.Cookies()
-				//todo: vet check ругается на незакрытое тело ответа
-				//	получить тело, пробросить в тест, закрыть
 				for _, cookie := range cookies {
 					if cookie.Name == security.JWTCookieName {
 						wasJWTFound = true

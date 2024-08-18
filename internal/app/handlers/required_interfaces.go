@@ -7,8 +7,6 @@ import (
 
 //go:generate mockgen -destination=mocks/mock_interfaces.go yandex_gophermart/internal/app/handlers StorageInt,JWTHelperInt
 
-// todo: ? лучше объявлять разные интерфейсы (userStorage, ordersStorage и т.д.) или один большой StorageInt?
-
 type StorageInt interface {
 	SaveUser(login string, passwordHash string, passwordSalt string, ctx context.Context) (int, error) //int - ID
 	GetUserIDWithCheck(login string, passwordHash string, ctx context.Context) (int, error)            //int - ID

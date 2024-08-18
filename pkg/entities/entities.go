@@ -50,7 +50,6 @@ type OrderData struct {
 	UploadedAt TimeRFC3339 `json:"uploaded_at"`
 }
 
-// todo: хранить во флоате или в двух интах
 type BalanceData struct {
 	ID        int     `json:"-"`
 	UserID    int     `json:"-"`
