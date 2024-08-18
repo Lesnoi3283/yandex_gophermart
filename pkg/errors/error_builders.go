@@ -55,3 +55,23 @@ var errNotEnoughPoints error = errors.New("not enough points")
 func MakeErrNotEnoughPoints() error {
 	return errNotEnoughPoints
 }
+
+//accrual system errors
+
+var errNoContentAccrual error = errors.New("accrual system response has status 204")
+
+func MakeErrNoContentAccrual() error {
+	return errNoContentAccrual
+}
+
+var errInternalServerErrorAccrual error = errors.New("accrual system response has status 500")
+
+func MakeErrInternalServerErrorAccrual() error {
+	return errInternalServerErrorAccrual
+}
+
+var errNeedToResendRequestAccrual error = errors.New("need to resend request with the same data")
+
+func MakeErrNeedToResendRequestAccrual() error {
+	return errNeedToResendRequestAccrual
+}

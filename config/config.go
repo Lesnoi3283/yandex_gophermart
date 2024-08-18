@@ -12,7 +12,7 @@ type Config struct {
 	LogLevel             string
 }
 
-// Configure priority: 1. Environment. 2. Flags
+// Configure priority: 1 - Environment. 2 - Flags
 func (c *Config) Configure() {
 	//env
 	runAddr, okRunAddr := os.LookupEnv("RUN_ADDRESS")
@@ -41,7 +41,9 @@ func (c *Config) Configure() {
 
 	if !okLogLevel {
 		flag.StringVar(&c.LogLevel, "l", "", "Log level")
-	} else {
+	} else if len(logLevel) > 0 {
 		c.LogLevel = logLevel
+	} else {
+		c.LogLevel = "debug"
 	}
 }

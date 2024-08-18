@@ -18,14 +18,14 @@ func NewJWTHelper() *JWTHelper {
 
 type claims struct {
 	UserID int
-	jwt.Claims
+	jwt.RegisteredClaims
 }
 
 // todo: улучшить секурность, почитать про разные методы подписи
 func (j *JWTHelper) BuildNewJWTString(userID int) (string, error) {
 	claims := claims{
-		UserID: userID,
-		Claims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72))},
+		UserID:           userID,
+		RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72))},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

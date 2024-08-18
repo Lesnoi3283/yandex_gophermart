@@ -3,6 +3,7 @@ package middlewares
 import (
 	"context"
 	"errors"
+	"github.com/golang-jwt/jwt/v4"
 	"go.uber.org/zap"
 	"net/http"
 	gophermarterrors "yandex_gophermart/pkg/errors"
@@ -19,11 +20,13 @@ func AuthMW(logger zap.SugaredLogger) func(handler http.Handler) http.Handler {
 			switch r.URL.Path {
 			case "/api/user/register":
 				{
+					logger.Debugf("no auth needed, serving requst: %s", r.URL.Path)
 					next.ServeHTTP(w, r)
 					return
 				}
 			case "/api/user/login":
 				{
+					logger.Debugf("no auth needed, serving requst: %s", r.URL.Path)
 					next.ServeHTTP(w, r)
 					return
 				}
@@ -47,6 +50,10 @@ func AuthMW(logger zap.SugaredLogger) func(handler http.Handler) http.Handler {
 					if errors.Is(err, gophermarterrors.MakeErrJWTTokenIsNotValid()) {
 						w.WriteHeader(http.StatusUnauthorized)
 						return
+					} else if errors.Is(err, jwt.ErrTokenExpired) {
+						logger.Errorf("JWT token expired, err: %v", err.Error())
+						w.WriteHeader(http.StatusUnauthorized)
+						return
 					} else if err != nil {
 						logger.Errorf("cant parse JWT token, err: %v", err.Error())
 						w.WriteHeader(http.StatusInternalServerError)
@@ -54,6 +61,7 @@ func AuthMW(logger zap.SugaredLogger) func(handler http.Handler) http.Handler {
 					}
 
 					//Put userID in request.ctx
+					logger.Debugf("user was authenticated, path - %s", r.URL.Path)
 					ctxWithUserID := context.WithValue(r.Context(), UserIDContextKey, userID)
 					next.ServeHTTP(w, r.WithContext(ctxWithUserID))
 				}

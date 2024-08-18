@@ -4,7 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	_ "github.com/jackc/pgx/v5"
+	"fmt"
+	"github.com/jackc/pgx/v5/pgconn"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	time2 "time"
 	"yandex_gophermart/pkg/entities"
 	gophermart_errors "yandex_gophermart/pkg/errors"
 	"yandex_gophermart/pkg/security"
@@ -24,6 +27,10 @@ func NewPostgresql(connStr string) (*Postgresql, error) {
 	}, nil
 }
 
+func (p *Postgresql) Ping() error {
+	return p.store.Ping()
+}
+
 func (p *Postgresql) SetTables() error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS users (
@@ -35,19 +42,20 @@ func (p *Postgresql) SetTables() error {
 		`CREATE TABLE IF NOT EXISTS orders (
 			id SERIAL PRIMARY KEY,
 			user_id INTEGER,
-			order_number VARCHAR(255),
+			order_number VARCHAR(255) UNIQUE,
 			status VARCHAR(255),
 			accural FLOAT,
 			uploaded_at TIMESTAMP
 		);`,
 		`CREATE TABLE IF NOT EXISTS balances (
 			id SERIAL PRIMARY KEY,
-			user_id INTEGER,
+			user_id INTEGER UNIQUE,
 			points FLOAT
 		);`,
 		`CREATE TABLE IF NOT EXISTS withdrawals (
 			id SERIAL PRIMARY KEY,
-			order_id INTEGER,
+			order_num VARCHAR(255),
+			user_id INTEGER,
 			amount FLOAT,
 			processed_at TIMESTAMP
 		);`,
@@ -62,7 +70,6 @@ func (p *Postgresql) SetTables() error {
 	return nil
 }
 
-// todo: лучше объединять ошибки с помощью errors.Join() или fmt.Errorf("an error happend during..., err: %v), err.Error()) ?
 func (p *Postgresql) SaveUser(login string, passwordHash string, passwordSalt string, ctx context.Context) (int, error) {
 	var userID int
 
@@ -73,7 +80,10 @@ func (p *Postgresql) SaveUser(login string, passwordHash string, passwordSalt st
 		RETURNING id;`,
 		login, passwordHash, passwordSalt).Scan(&userID)
 
-	if err != nil {
+	if errors.Is(err, sql.ErrNoRows) {
+		// "save user err: %v"
+		return 0, gophermart_errors.MakeErrUserAlreadyExists()
+	} else if err != nil {
 		return 0, err
 	}
 
@@ -90,7 +100,9 @@ func (p *Postgresql) GetUserIDWithCheck(login string, password string, ctx conte
 		SELECT id, password_hash, password_salt 
 		FROM users 
 		WHERE login = $1`, login).Scan(&userID, &passwordHash, &passwordSalt)
-	if err != nil {
+	if errors.Is(err, sql.ErrNoRows) {
+		return 0, gophermart_errors.MakeErrWrongLoginOrPassword()
+	} else if err != nil {
 		return 0, err
 	}
 
@@ -102,11 +114,34 @@ func (p *Postgresql) GetUserIDWithCheck(login string, password string, ctx conte
 }
 
 func (p *Postgresql) SaveNewOrder(orderData entities.OrderData, ctx context.Context) error {
-	_, err := p.store.ExecContext(ctx, `
+	var userID int
+	time := orderData.UploadedAt.Time
+
+	err := p.store.QueryRowContext(ctx, `
 		INSERT INTO orders (user_id, order_number, status, accural, uploaded_at)
-		VALUES ($1, $2, $3, $4, $5)`,
-		orderData.UserID, orderData.Number, orderData.Status, orderData.Accural, orderData.UploadedAt)
-	return err
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING user_id`,
+		orderData.UserID, orderData.Number, orderData.Status, orderData.Accrual, time).Scan(&userID)
+
+	//check who uploaded this order first (conflict)
+	if err != nil {
+		if pqErr, ok := err.(*pgconn.PgError); ok && pqErr.Code == "23505" {
+			err = p.store.QueryRowContext(ctx, `
+				SELECT user_id FROM orders WHERE order_number = $1`,
+				orderData.Number).Scan(&userID)
+			if err != nil {
+				return err
+			}
+			if userID == orderData.UserID {
+				return gophermart_errors.MakeErrUserHasAlreadyUploadedThisOrder()
+			} else {
+				return gophermart_errors.MakeErrThisOrderWasUploadedByDifferentUser()
+			}
+		}
+		return err
+	}
+
+	return nil
 }
 
 func (p *Postgresql) UpdateOrder(orderData entities.OrderData, ctx context.Context) error {
@@ -114,7 +149,7 @@ func (p *Postgresql) UpdateOrder(orderData entities.OrderData, ctx context.Conte
 		UPDATE orders 
 		SET status = $1, accural = $2, uploaded_at = $3
 		WHERE id = $4 AND user_id = $5`,
-		orderData.Status, orderData.Accural, orderData.UploadedAt, orderData.ID, orderData.UserID)
+		orderData.Status, orderData.Accrual, orderData.UploadedAt.Time, orderData.ID, orderData.UserID)
 	return err
 }
 
@@ -131,12 +166,41 @@ func (p *Postgresql) GetOrdersList(userID int, ctx context.Context) ([]entities.
 	var orders []entities.OrderData
 	for rows.Next() {
 		var order entities.OrderData
-		if err := rows.Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.Accural, &order.UploadedAt); err != nil {
+		var time time2.Time
+		if err := rows.Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.Accrual, &time); err != nil {
+			return nil, err
+		}
+		order.UploadedAt.Time = time
+		orders = append(orders, order)
+	}
+	return orders, rows.Err()
+}
+
+func (p *Postgresql) GetUnfinishedOrdersList(ctx context.Context) ([]entities.OrderData, error) {
+	rows, err := p.store.QueryContext(ctx, `
+		SELECT id, user_id, order_number, status, accural, uploaded_at 
+		FROM orders
+		WHERE status IN ('NEW', 'PROCESSING')`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var orders []entities.OrderData
+	for rows.Next() {
+		var order entities.OrderData
+		err := rows.Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.Accrual, &order.UploadedAt.Time)
+		if err != nil {
 			return nil, err
 		}
 		orders = append(orders, order)
 	}
-	return orders, rows.Err()
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return orders, nil
 }
 
 func (p *Postgresql) GetBalance(userID int, ctx context.Context) (entities.BalanceData, error) {
@@ -155,7 +219,7 @@ func (p *Postgresql) GetBalance(userID int, ctx context.Context) (entities.Balan
 	err = p.store.QueryRowContext(ctx, `
 		SELECT COALESCE(SUM(amount), 0) 
 		FROM withdrawals 
-		WHERE order_id IN (SELECT id FROM orders WHERE user_id = $1)`, userID).Scan(&balance.Withdrawn)
+		WHERE user_id = $1`, userID).Scan(&balance.Withdrawn)
 	if err != nil {
 		return balance, err
 	}
@@ -173,7 +237,7 @@ func (p *Postgresql) AddToBalance(userID int, amount float64, ctx context.Contex
 	return err
 }
 
-func (p *Postgresql) WithdrawFromBalance(userID int, orderID int, amount float64, ctx context.Context) error {
+func (p *Postgresql) WithdrawFromBalance(userID int, orderNum string, amount float64, ctx context.Context) error {
 	tx, err := p.store.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -187,7 +251,7 @@ func (p *Postgresql) WithdrawFromBalance(userID int, orderID int, amount float64
 		WHERE user_id = $1`, userID).Scan(&currentBalance)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return fmt.Errorf("cant get balance to check, err: %w", err)
 	}
 
 	if currentBalance < amount {
@@ -202,17 +266,17 @@ func (p *Postgresql) WithdrawFromBalance(userID int, orderID int, amount float64
 		WHERE user_id = $2`, amount, userID)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return fmt.Errorf("cant withdraw from balance in db, err: %w", err)
 	}
 
 	// Add new withdrawal
 	_, err = tx.ExecContext(ctx, `
-		INSERT INTO withdrawals (order_id, amount, processed_at) 
-		VALUES ($1, $2, now())`,
-		orderID, amount)
+		INSERT INTO withdrawals (order_num, user_id, amount, processed_at) 
+		VALUES ($1, $2, $3, now())`,
+		orderNum, userID, amount)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return fmt.Errorf("cant add new withdrawal, err: %w", err)
 	}
 
 	return tx.Commit()
@@ -220,10 +284,8 @@ func (p *Postgresql) WithdrawFromBalance(userID int, orderID int, amount float64
 
 func (p *Postgresql) GetWithdrawals(userID int, ctx context.Context) ([]entities.WithdrawalData, error) {
 	rows, err := p.store.QueryContext(ctx, `
-		SELECT w.order_id, w.amount, w.processed_at 
-		FROM withdrawals w
-		JOIN orders o ON w.order_id = o.id
-		WHERE o.user_id = $1`, userID)
+		SELECT order_num, amount, processed_at 
+		FROM withdrawals WHERE user_id = $1`, userID)
 	if err != nil {
 		return nil, err
 	}

@@ -1,10 +1,8 @@
 package handlers
 
 import (
-	"context"
-	"encoding/json"
 	"errors"
-	"go.uber.org/zap"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -14,8 +12,33 @@ import (
 	gophermart_errors "yandex_gophermart/pkg/errors"
 )
 
-func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
+func checkWithLuna(num string) (bool, error) {
+	sum := 0
+	double := false
 
+	//count sum
+	for i := len(num) - 1; i >= 0; i-- {
+		cur, err := strconv.Atoi(num[i : i+1])
+		if err != nil {
+			return false, fmt.Errorf("cant count a luna`s sum : %w", err)
+		}
+
+		if double {
+			cur = cur * 2
+			if cur > 9 {
+				cur = cur - 9
+			}
+		}
+
+		sum += cur
+		double = !double
+	}
+
+	//check
+	return sum%10 == 0, nil
+}
+
+func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 	//get request data
 	bodyBytes, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -28,12 +51,17 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	//todo: check with Luna`s alg
+	
+	//check with Luna`s alg
 	orderNum := string(bodyBytes)
-	orderNumInt, err := strconv.Atoi(orderNum)
+	ok, err := checkWithLuna(orderNum)
 	if err != nil {
-		h.Logger.Errorf("cant convert orderNum into int: %v", err.Error())
+		h.Logger.Errorf("cant do a Luna`s check: %v", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !ok {
+		h.Logger.Debugf("order num `%s` is incorrect", orderNum)
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		return
 	}
@@ -55,9 +83,9 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 	//save new order
 	newOrder := entities.OrderData{
 		UserID:     userIDInt,
-		Number:     orderNumInt,
+		Number:     orderNum,
 		Status:     entities.OrderStatusNew,
-		Accural:    0,
+		Accrual:    0,
 		UploadedAt: entities.TimeRFC3339{Time: time.Now()},
 	}
 
@@ -72,109 +100,6 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//process order
-	go processOrder(newOrder, &h.Storage, h.Logger, 2)
-
 	//return
 	w.WriteHeader(http.StatusAccepted)
-}
-
-// todo: тесты на функцию
-func processOrder(order entities.OrderData, storage *StorageInt, logger zap.SugaredLogger, maxTry int) {
-	if maxTry == 0 {
-		return
-	}
-	maxTry--
-
-	//change order status
-	order.Status = entities.OrderStatusProcessing
-	ctx := context.Background()
-	err := (*storage).UpdateOrder(order, ctx)
-	if err != nil {
-		logger.Errorf("error while updating order data in a storage: %v", err.Error())
-		return
-	}
-
-	//ask different service
-	targetURL := "/api/orders/" + strconv.Itoa(order.Number)
-	resp, err := http.Get(targetURL)
-	if err != nil {
-		order.Status = entities.OrderStatusInvalid
-		logger.Errorf("error while making a request: %v", err.Error())
-
-		err = (*storage).UpdateOrder(order, ctx)
-		if err != nil {
-			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return
-		}
-		return
-	}
-
-	//get data from a response
-	respData := struct {
-		Order   int     `json:"order"`
-		Status  string  `json:"status"`
-		Accural float64 `json:"accural"`
-	}{}
-
-	if resp.StatusCode != http.StatusOK {
-		order.Status = entities.OrderStatusInvalid
-		err = (*storage).UpdateOrder(order, ctx)
-		if err != nil {
-			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return
-		}
-		return
-	}
-
-	bodyBytes, err := io.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	if err != nil {
-		logger.Errorf("cant read a responce body: %v", err.Error())
-		return
-	}
-
-	err = json.Unmarshal(bodyBytes, &respData)
-	if err != nil {
-		logger.Errorf("cant unmurshal a responce body: %v", err.Error())
-		return
-	}
-
-	//update order
-	switch respData.Status {
-	case "PROCESSED":
-		order.Status = entities.OrderStatusProcessed
-		order.Accural = respData.Accural
-		err = (*storage).UpdateOrder(order, ctx)
-		if err != nil {
-			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return
-		}
-		err = (*storage).AddToBalance(order.UserID, order.Accural, ctx)
-		if err != nil {
-			logger.Errorf("cant increase user`s balance, err: %v", err.Error())
-			return
-		}
-	case "PROCESSING":
-		time.Sleep(3000 * time.Millisecond)
-		processOrder(order, storage, logger, maxTry)
-	case "INVALID":
-		order.Status = entities.OrderStatusInvalid
-		err = (*storage).UpdateOrder(order, ctx)
-		if err != nil {
-			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return
-		}
-	case "REGISTERED":
-		//todo кейс registered
-	default:
-		logger.Errorf("unknown order status was received from outside service: `%v`", respData.Status)
-		order.Status = entities.OrderStatusInvalid
-		err = (*storage).UpdateOrder(order, ctx)
-		if err != nil {
-			logger.Errorf("error while updating order data in a storage: %v", err.Error())
-			return
-		}
-	}
-
 }

@@ -7,6 +7,7 @@ import (
 )
 
 func (h *Handler) GetBalanceHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 
 	//get userID
 	userID := r.Context().Value(middlewares.UserIDContextKey)

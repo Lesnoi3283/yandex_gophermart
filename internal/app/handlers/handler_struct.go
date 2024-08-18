@@ -5,7 +5,8 @@ import (
 )
 
 type Handler struct {
-	Logger  zap.SugaredLogger
-	Storage StorageInt
-	JWTH    JWTHelperInt
+	Logger               zap.SugaredLogger
+	Storage              StorageInt
+	JWTH                 JWTHelperInt
+	AccrualSystemAddress string
 }

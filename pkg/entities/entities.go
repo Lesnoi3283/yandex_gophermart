@@ -44,9 +44,9 @@ func (t *TimeRFC3339) UnmarshalJSON(data []byte) error {
 type OrderData struct {
 	ID         int         `json:"-"`
 	UserID     int         `json:"-"`
-	Number     int         `json:"number"`
+	Number     string      `json:"number"`
 	Status     string      `json:"status"`
-	Accural    float64     `json:"accural"`
+	Accrual    float64     `json:"accrual"`
 	UploadedAt TimeRFC3339 `json:"uploaded_at"`
 }
 
@@ -59,7 +59,7 @@ type BalanceData struct {
 }
 
 type WithdrawalData struct {
-	OrderNum    int         `json:"order"`
+	OrderNum    string      `json:"order"`
 	Sum         float64     `json:"sum"`
 	ProcessedAt TimeRFC3339 `json:"processed_at"`
 }

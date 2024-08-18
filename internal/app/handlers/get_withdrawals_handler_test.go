@@ -29,7 +29,7 @@ func TestHandler_GetWithdrawals(t *testing.T) {
 
 	//data set
 	correctUserID := 2
-	correctOrderID := 2377225624
+	correctOrderID := "2377225624"
 	correctSum := 500.0
 	correctOrderTime, err := time.Parse(time.RFC3339, "2020-12-09T16:09:57+03:00")
 	if err != nil {
@@ -75,7 +75,7 @@ func TestHandler_GetWithdrawals(t *testing.T) {
 			statusWant: http.StatusOK,
 			answerWant: func() []byte {
 				correctResponceData := []struct {
-					Order       int                  `json:"order"`
+					Order       string               `json:"order"`
 					Sum         float64              `json:"sum"`
 					ProcessedAt entities.TimeRFC3339 `json:"processed_at"`
 				}{

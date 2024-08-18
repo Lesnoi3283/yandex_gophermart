@@ -53,7 +53,6 @@ func TestHandler_AuthUser(t *testing.T) {
 		statusWant int
 		checkJWT   bool
 	}{
-		// TODO: Add test cases.
 		{
 			name: "normal",
 			fields: struct {
@@ -110,7 +109,7 @@ func TestHandler_AuthUser(t *testing.T) {
 				Storage: func() StorageInt {
 					storage := mock_handlers.NewMockStorageInt(controller)
 					storage.EXPECT().GetUserIDWithCheck(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(login string, password string, ctx context.Context) (int, error) {
-						return 0, gophermart_errors.MakeErrUserNotFound()
+						return 0, gophermart_errors.MakeErrWrongLoginOrPassword()
 					})
 					return storage
 				}(),
@@ -179,14 +178,18 @@ func TestHandler_AuthUser(t *testing.T) {
 
 			if tt.checkJWT {
 				wasJWTFound := false
-				cookies := tt.args.w.Result().Cookies()
+				resp := tt.args.w.Result()
+				cookies := resp.Cookies()
 				//todo: vet check ругается на незакрытое тело ответа
+				//	получить тело, пробросить в тест, закрыть
 				for _, cookie := range cookies {
 					if cookie.Name == security.JWTCookieName {
 						wasJWTFound = true
 						assert.Equal(t, correctJWTString, cookie.Value)
 					}
 				}
+				resp.Body.Close()
+
 				assert.Equal(t, true, wasJWTFound, "JWT cookie wasn`t found")
 			}
 			err := tt.args.w.Result().Body.Close()

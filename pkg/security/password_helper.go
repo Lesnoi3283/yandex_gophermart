@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"errors"
 )
 
@@ -13,7 +14,7 @@ func HashPassword(password string, salt string) string {
 	hasher := sha256.New()
 	hasher.Write([]byte(password))
 	hasher.Write([]byte(salt))
-	return string(hasher.Sum(nil))
+	return hex.EncodeToString(hasher.Sum(nil))
 }
 
 // CheckPassword returns TRUE if password is CORRECT
