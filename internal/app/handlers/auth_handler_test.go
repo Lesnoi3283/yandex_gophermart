@@ -53,7 +53,6 @@ func TestHandler_AuthUser(t *testing.T) {
 		statusWant int
 		checkJWT   bool
 	}{
-		// TODO: Add test cases.
 		{
 			name: "normal",
 			fields: struct {
@@ -179,7 +178,8 @@ func TestHandler_AuthUser(t *testing.T) {
 
 			if tt.checkJWT {
 				wasJWTFound := false
-				cookies := tt.args.w.Result().Cookies()
+				resp := tt.args.w.Result()
+				cookies := resp.Cookies()
 				//todo: vet check ругается на незакрытое тело ответа
 				//	получить тело, пробросить в тест, закрыть
 				for _, cookie := range cookies {
@@ -188,6 +188,8 @@ func TestHandler_AuthUser(t *testing.T) {
 						assert.Equal(t, correctJWTString, cookie.Value)
 					}
 				}
+				resp.Body.Close()
+
 				assert.Equal(t, true, wasJWTFound, "JWT cookie wasn`t found")
 			}
 			err := tt.args.w.Result().Body.Close()

@@ -147,17 +147,21 @@ func TestHandler_RegisterUser(t *testing.T) {
 				Storage: tt.fields.Storage,
 				JWTH:    tt.fields.JWTH,
 			}
+
 			h.RegisterUser(tt.args.w, tt.args.r)
+
 			if assert.Equal(t, tt.statusWant, tt.args.w.Code, "wrong status code") {
 				if tt.args.w.Code == http.StatusOK {
 					wasJWTFound := false
-					cookies := tt.args.w.Result().Cookies()
+					res := tt.args.w.Result()
+					cookies := res.Cookies()
 					for _, cookie := range cookies {
 						if cookie.Name == security.JWTCookieName {
 							wasJWTFound = true
 							assert.Equal(t, correctJWTString, cookie.Value)
 						}
 					}
+					res.Body.Close()
 					assert.Equal(t, true, wasJWTFound, "JWT cookie wasn`t found")
 				}
 
