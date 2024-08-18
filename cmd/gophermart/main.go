@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 	"yandex_gophermart/config"
-	"yandex_gophermart/internal/app/accrualDaemon"
+	"yandex_gophermart/internal/app/accrualdaemon"
 	"yandex_gophermart/internal/app/handlers"
 	"yandex_gophermart/pkg/databases"
 )
@@ -47,7 +47,7 @@ func main() {
 	}
 
 	//start an accrual daemon
-	go accrualDaemon.AccrualCheckDaemon(context.Background(), sugar, pg, cfg.AccrualSystemAddress)
+	go accrualdaemon.AccrualCheckDaemon(context.Background(), sugar, pg, cfg.AccrualSystemAddress)
 	sugar.Infof("starting an accrual daemon")
 
 	//router set and server start

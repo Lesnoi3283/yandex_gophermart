@@ -1,4 +1,4 @@
-package accrualDaemon
+package accrualdaemon
 
 import (
 	"context"
