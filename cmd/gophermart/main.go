@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"go.uber.org/zap"
 	"io"
 	"log"
@@ -14,6 +16,7 @@ import (
 	"yandex_gophermart/internal/app/handlers"
 	"yandex_gophermart/pkg/databases"
 	"yandex_gophermart/pkg/entities"
+	gophermart_errors "yandex_gophermart/pkg/errors"
 )
 
 func main() {
@@ -55,7 +58,7 @@ func main() {
 	//go accrual_daemon.ProcessOrders(context.Background(), cfg.AccrualSystemAddress, pg, sugar)
 	//sugar.Infof("starting an accrual daemon")
 
-	go someTestGoroutine(context.Background(), sugar, pg, cfg.AccrualSystemAddress)
+	go accrualCheckDaemon(context.Background(), sugar, pg, cfg.AccrualSystemAddress)
 
 	//router set and server start
 	router := handlers.NewRouter(*sugar, pg, cfg.AccrualSystemAddress)
@@ -69,19 +72,18 @@ type respData struct {
 	Accrual float64 `json:"accrual"`
 }
 
-func someTestGoroutine(ctx context.Context, logger *zap.SugaredLogger, storage accrual_daemon.UnfinishedOrdersStorageInt, accrualSystemAddress string) {
-	logger.Infof("TEST GOROUTINE STARTED")
+func accrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage accrual_daemon.UnfinishedOrdersStorageInt, accrualSystemAddress string) {
+	logger.Infof("Accrual daemon started")
 
 	orders := make([]entities.OrderData, 0)
 	i := 0
 
 loop:
 	for {
-
 		//get new unfinished orders
 		if i >= len(orders) {
 			var err error
-			orders = make([]entities.OrderData, 0) //todo: delete this line
+			//orders = make([]entities.OrderData, 0) //todo: delete this line
 			orders, err = storage.GetUnfinishedOrdersList(ctx)
 			if err != nil {
 				logger.Errorf("cant get unfinished orders from db, err: %v", err.Error())
@@ -89,79 +91,103 @@ loop:
 			}
 			i = 0
 		}
-		//logger.Infof("TEST G i=%v len(orders)=%v", i, len(orders))
 
 		select {
 		case <-ctx.Done():
 			break loop
 		default:
-			//logger.Infof("TEST GOROUTINE IS RUNNUNG, orders amount: %v", len(orders))
-
+			//process order
 			if len(orders) > 0 {
-				resp := someDifferentTestFunc(accrualSystemAddress, orders[i], logger)
-				switch resp.StatusCode {
-				case http.StatusOK:
-					{
-						bodyBytes, err := io.ReadAll(resp.Body)
-						defer resp.Body.Close()
-						if err != nil {
-							logger.Errorf("TEST G cant read a responce body: %v", err.Error())
-						}
-						data := respData{}
-						err = json.Unmarshal(bodyBytes, &data)
-						if err != nil {
-							logger.Errorf("TEST G cant unmurshal a responce body: %v", err.Error())
-						}
-						logger.Infof("TEST G ask data: %#v", orders[i])
-						logger.Infof("TEST G resp data: %#v", data)
-
-						order := orders[i]
-						order.Status = data.Status
-						order.Accrual = data.Accrual
-						err = storage.UpdateOrder(order, ctx)
-						if err != nil {
-							logger.Errorf("TEST G err: %v", err.Error())
-						}
-						logger.Infof("TEST G Updated")
-
-						//increase users`s balance
-						err = storage.AddToBalance(order.UserID, order.Accrual, ctx)
-						if err != nil {
-							logger.Errorf("error while increasing users balance in a storage: %v", err.Error())
-						}
-						logger.Infof("TEST G Increased")
-
+				data, err := askAccrual(accrualSystemAddress, orders[i], logger)
+				if errors.Is(err, gophermart_errors.MakeErrNeedToResendRequestAccrual()) {
+					//DONT INCREASE AN "i" HERE!
+					continue
+				} else if errors.Is(err, gophermart_errors.MakeErrNoContentAccrual()) {
+					i++
+					continue
+				} else if errors.Is(err, gophermart_errors.MakeErrNoContentAccrual()) {
+					i++
+					continue
+				} else {
+					//update an order in db
+					order := orders[i]
+					order.Status = data.Status
+					order.Accrual = data.Accrual
+					err = storage.UpdateOrder(order, ctx)
+					if err != nil {
+						logger.Errorf(" err: %v", err.Error())
 						i++
+						continue
 					}
-				case http.StatusTooManyRequests:
-					{
-						retryAfter := resp.Header.Get("Retry-After")
-						seconds, err := strconv.Atoi(retryAfter)
-						if err != nil {
-							date, err := time.Parse(time.RFC1123, retryAfter)
-							if err != nil {
-								logger.Errorf("TEST G error while parsing Retry-After: %v", err.Error())
-							}
-							time.Sleep(time.Until(date))
-						} else if retryAfter == "" {
-							time.Sleep(time.Second * 3)
-						} else {
-							time.Sleep(time.Duration(seconds))
-						}
+
+					//increase users`s balance
+					err = storage.AddToBalance(order.UserID, order.Accrual, ctx)
+					if err != nil {
+						logger.Errorf("error while increasing users balance in a storage: %v", err.Error())
+						i++
+						continue
 					}
+					i++
 				}
+
 			}
 
 		}
 	}
 }
 
-func someDifferentTestFunc(accrualSystemAddress string, smg entities.OrderData, logger *zap.SugaredLogger) *http.Response {
+func askAccrual(accrualSystemAddress string, smg entities.OrderData, logger *zap.SugaredLogger) (respData, error) {
 	targetURL := accrualSystemAddress + "/api/orders/" + smg.Number
 	resp, err := http.Get(targetURL)
 	if err != nil {
-		logger.Error("TEST G err : %v", err.Error())
+		logger.Error("cant send a request, err : %v", err.Error())
 	}
-	logger.Infof("TEST G resp: %#v", resp)
-	return resp
+
+	switch resp.StatusCode {
+	case http.StatusOK:
+		{
+			//read response
+			bodyBytes, err := io.ReadAll(resp.Body)
+			defer resp.Body.Close()
+			if err != nil {
+				return respData{}, fmt.Errorf("cant read a responce body, err: %w", err)
+			}
+			//parse response
+			data := respData{}
+			err = json.Unmarshal(bodyBytes, &data)
+			if err != nil {
+				return respData{}, fmt.Errorf("cant unmurshal a responce body: %w", err)
+			}
+			return data, nil
+		}
+	case http.StatusTooManyRequests:
+		{
+			//daemon will sleep here
+			retryAfter := resp.Header.Get("Retry-After")
+			seconds, err := strconv.Atoi(retryAfter)
+			if err != nil {
+				date, err := time.Parse(time.RFC1123, retryAfter)
+				if err != nil {
+					logger.Errorf("TEST G error while parsing Retry-After: %v", err.Error())
+				}
+				time.Sleep(time.Until(date))
+			} else if retryAfter == "" {
+				time.Sleep(time.Second * 3)
+			} else {
+				time.Sleep(time.Duration(seconds))
+			}
+
+			return respData{}, gophermart_errors.MakeErrNeedToResendRequestAccrual()
+		}
+	case http.StatusNoContent:
+		{
+			return respData{}, gophermart_errors.MakeErrNoContentAccrual()
+		}
+	case http.StatusInternalServerError:
+		{
+			return respData{}, gophermart_errors.MakeErrInternalServerErrorAccrual()
+		}
+	default:
+		return respData{}, fmt.Errorf("unprdefictable responce status code %v", resp.StatusCode)
+	}
 }
