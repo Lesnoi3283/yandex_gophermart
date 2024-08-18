@@ -54,7 +54,7 @@ func (p *Postgresql) SetTables() error {
 		);`,
 		`CREATE TABLE IF NOT EXISTS withdrawals (
 			id SERIAL PRIMARY KEY,
-			order_num INTEGER,
+			order_num VARCHAR(255),
 			user_id INTEGER,
 			amount FLOAT,
 			processed_at TIMESTAMP
