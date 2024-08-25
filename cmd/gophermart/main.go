@@ -5,6 +5,7 @@ import (
 	"go.uber.org/zap"
 	"log"
 	"net/http"
+	"sync"
 	"yandex_gophermart/config"
 	"yandex_gophermart/internal/app/accrualdaemon"
 	"yandex_gophermart/internal/app/handlers"
@@ -47,11 +48,16 @@ func main() {
 	}
 
 	//start an accrual daemon
-	go accrualdaemon.AccrualCheckDaemon(context.Background(), sugar, pg, cfg.AccrualSystemAddress)
+	wg := &sync.WaitGroup{}
+	accrualCtx := context.Background()
+	go accrualdaemon.AccrualCheckDaemon(accrualCtx, sugar, pg, cfg.AccrualSystemAddress, wg)
+	wg.Add(1)
 	sugar.Infof("starting an accrual daemon")
 
 	//router set and server start
 	router := handlers.NewRouter(*sugar, pg, cfg.AccrualSystemAddress)
 	sugar.Infof("starting server")
 	sugar.Fatalf("failed to start a server:", http.ListenAndServe(cfg.RunAddress, router).Error())
+
+	wg.Wait()
 }

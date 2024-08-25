@@ -9,18 +9,16 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 	"yandex_gophermart/pkg/entities"
 	gophermart_errors "yandex_gophermart/pkg/errors"
 )
 
-//
-//const (
-//	orderStatusRegistered = "REGISTERED"
-//	orderStatusInvalid    = "INVALID"
-//	orderStatusProcessing = "PROCESSING"
-//	orderStatusProcessed  = "PROCESSED"
-//)
+const (
+	dbWaitLong  = time.Second * 30
+	dbWaitShort = time.Millisecond * 100
+)
 
 type UnfinishedOrdersStorageInt interface {
 	UpdateOrder(orderData entities.OrderData, ctx context.Context) error
@@ -34,16 +32,22 @@ type respData struct {
 	Accrual float64 `json:"accrual"`
 }
 
-func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage UnfinishedOrdersStorageInt, accrualSystemAddress string) {
+func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage UnfinishedOrdersStorageInt, accrualSystemAddress string, wg *sync.WaitGroup) {
+	defer wg.Done()
 	logger.Infof("Accrual daemon started")
 
 	orders := make([]entities.OrderData, 0)
 	i := 0
 
-loop:
+	//should be 0 at start (default value)
+	var waitBeforeNewDBRequest time.Duration
+
 	for {
 		//get new unfinished orders
 		if i >= len(orders) {
+			//to not spam our db with a lot of requests
+			time.Sleep(waitBeforeNewDBRequest)
+
 			var err error
 			orders, err = storage.GetUnfinishedOrdersList(ctx)
 			if err != nil {
@@ -51,6 +55,12 @@ loop:
 				return
 			}
 			i = 0
+
+			if len(orders) > 0 {
+				waitBeforeNewDBRequest = dbWaitShort
+			} else {
+				waitBeforeNewDBRequest = dbWaitLong
+			}
 		}
 
 		select {
@@ -66,7 +76,7 @@ loop:
 				} else if errors.Is(err, gophermart_errors.MakeErrNoContentAccrual()) {
 					i++
 					continue
-				} else if errors.Is(err, gophermart_errors.MakeErrNoContentAccrual()) {
+				} else if errors.Is(err, gophermart_errors.MakeErrInternalServerErrorAccrual()) {
 					i++
 					continue
 				} else {
@@ -135,7 +145,7 @@ func askAccrual(accrualSystemAddress string, smg entities.OrderData, logger *zap
 			} else if retryAfter == "" {
 				time.Sleep(time.Second * 3)
 			} else {
-				time.Sleep(time.Duration(seconds))
+				time.Sleep(time.Duration(seconds) * time.Second)
 			}
 
 			return respData{}, gophermart_errors.MakeErrNeedToResendRequestAccrual()

@@ -248,7 +248,7 @@ func (p *Postgresql) WithdrawFromBalance(userID int, orderNum string, amount flo
 	err = tx.QueryRowContext(ctx, `
 		SELECT points 
 		FROM balances 
-		WHERE user_id = $1`, userID).Scan(&currentBalance)
+		WHERE user_id = $1 FOR UPDATE`, userID).Scan(&currentBalance)
 	if err != nil {
 		tx.Rollback()
 		return fmt.Errorf("cant get balance to check, err: %w", err)
