@@ -9,13 +9,14 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 	"yandex_gophermart/pkg/entities"
 	gophermart_errors "yandex_gophermart/pkg/errors"
 )
 
 const (
-	dbWaitLong  = time.Second * 7
+	dbWaitLong  = time.Second * 30
 	dbWaitShort = time.Millisecond * 100
 )
 
@@ -31,7 +32,8 @@ type respData struct {
 	Accrual float64 `json:"accrual"`
 }
 
-func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage UnfinishedOrdersStorageInt, accrualSystemAddress string) {
+func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage UnfinishedOrdersStorageInt, accrualSystemAddress string, wg *sync.WaitGroup) {
+	defer wg.Done()
 	logger.Infof("Accrual daemon started")
 
 	orders := make([]entities.OrderData, 0)
@@ -48,7 +50,6 @@ func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage 
 
 			var err error
 			orders, err = storage.GetUnfinishedOrdersList(ctx)
-			logger.Infof("accrual, orders got from db: %#v", orders)
 			if err != nil {
 				logger.Errorf("cant get unfinished orders from db, err: %v", err.Error())
 				return
@@ -64,22 +65,18 @@ func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage 
 
 		select {
 		case <-ctx.Done():
-			logger.Info("Stopping an accrual daemon because ctx is done")
 			return
 		default:
 			//process order
 			if len(orders) > 0 {
-				logger.Infof("sending the order to accrual, order: %#v", orders[i])
 				data, err := askAccrual(accrualSystemAddress, orders[i], logger)
 				if errors.Is(err, gophermart_errors.MakeErrNeedToResendRequestAccrual()) {
 					//DONT INCREASE AN "i" HERE!
 					continue
 				} else if errors.Is(err, gophermart_errors.MakeErrNoContentAccrual()) {
-					logger.Warnf("accrual system error: %v", err.Error())
 					i++
 					continue
 				} else if errors.Is(err, gophermart_errors.MakeErrInternalServerErrorAccrual()) {
-					logger.Warnf("accrual system error: %v", err.Error())
 					i++
 					continue
 				} else if err != nil {
@@ -91,11 +88,9 @@ func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage 
 					order := orders[i]
 					order.Status = data.Status
 					order.Accrual = data.Accrual
-					//todo: delete log
-					logger.Infof("order to update: %#v", order)
 					err = storage.UpdateOrder(order, ctx)
 					if err != nil {
-						logger.Errorf("error while updating order in db, err: %v", err.Error())
+						logger.Errorf(" err: %v", err.Error())
 						i++
 						continue
 					}
