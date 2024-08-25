@@ -9,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"sync"
 	"time"
 	"yandex_gophermart/pkg/entities"
 	gophermart_errors "yandex_gophermart/pkg/errors"
@@ -32,8 +31,7 @@ type respData struct {
 	Accrual float64 `json:"accrual"`
 }
 
-func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage UnfinishedOrdersStorageInt, accrualSystemAddress string, wg *sync.WaitGroup) {
-	defer wg.Done()
+func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage UnfinishedOrdersStorageInt, accrualSystemAddress string) {
 	logger.Infof("Accrual daemon started")
 
 	orders := make([]entities.OrderData, 0)
