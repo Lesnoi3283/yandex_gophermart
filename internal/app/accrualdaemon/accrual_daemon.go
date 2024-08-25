@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	dbWaitLong  = time.Second * 30
+	dbWaitLong  = time.Second * 7
 	dbWaitShort = time.Millisecond * 100
 )
 
