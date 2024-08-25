@@ -67,14 +67,17 @@ func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage 
 		default:
 			//process order
 			if len(orders) > 0 {
+				logger.Infof("sending the order to accrual, order: %#v", orders[i])
 				data, err := askAccrual(accrualSystemAddress, orders[i], logger)
 				if errors.Is(err, gophermart_errors.MakeErrNeedToResendRequestAccrual()) {
 					//DONT INCREASE AN "i" HERE!
 					continue
 				} else if errors.Is(err, gophermart_errors.MakeErrNoContentAccrual()) {
+					logger.Warnf("accrual system error: %v", err.Error())
 					i++
 					continue
 				} else if errors.Is(err, gophermart_errors.MakeErrInternalServerErrorAccrual()) {
+					logger.Warnf("accrual system error: %v", err.Error())
 					i++
 					continue
 				} else if err != nil {
@@ -86,9 +89,11 @@ func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage 
 					order := orders[i]
 					order.Status = data.Status
 					order.Accrual = data.Accrual
+					//todo: delete log
+					logger.Infof("order to update: %#v", order)
 					err = storage.UpdateOrder(order, ctx)
 					if err != nil {
-						logger.Errorf(" err: %v", err.Error())
+						logger.Errorf("error while updating order in db, err: %v", err.Error())
 						i++
 						continue
 					}
