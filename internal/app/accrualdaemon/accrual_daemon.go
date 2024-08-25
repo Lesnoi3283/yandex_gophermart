@@ -79,6 +79,10 @@ func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage 
 				} else if errors.Is(err, gophermart_errors.MakeErrInternalServerErrorAccrual()) {
 					i++
 					continue
+				} else if err != nil {
+					logger.Errorf("error while sending a request: %v", err.Error())
+					i++
+					continue
 				} else {
 					//update an order in db
 					order := orders[i]
@@ -111,7 +115,7 @@ func askAccrual(accrualSystemAddress string, smg entities.OrderData, logger *zap
 	targetURL := accrualSystemAddress + "/api/orders/" + smg.Number
 	resp, err := http.Get(targetURL)
 	if err != nil {
-		logger.Error("cant send a request, err : %v", err.Error())
+		return respData{}, fmt.Errorf("cant send a request to an accrual system: %w", err)
 	}
 
 	switch resp.StatusCode {
