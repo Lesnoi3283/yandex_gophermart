@@ -55,7 +55,7 @@ loop:
 
 		select {
 		case <-ctx.Done():
-			break loop
+			return
 		default:
 			//process order
 			if len(orders) > 0 {
