@@ -48,6 +48,7 @@ func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage 
 
 			var err error
 			orders, err = storage.GetUnfinishedOrdersList(ctx)
+			logger.Infof("accrual, orders got from db: %#v", orders)
 			if err != nil {
 				logger.Errorf("cant get unfinished orders from db, err: %v", err.Error())
 				return
@@ -63,6 +64,7 @@ func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage 
 
 		select {
 		case <-ctx.Done():
+			logger.Info("Stopping an accrual daemon because ctx is done")
 			return
 		default:
 			//process order
