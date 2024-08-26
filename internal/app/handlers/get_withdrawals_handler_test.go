@@ -58,7 +58,7 @@ func TestHandler_GetWithdrawals(t *testing.T) {
 				Logger: *sugared,
 				Storage: func() StorageInt {
 					storage := mock_handlers.NewMockStorageInt(controller)
-					storage.EXPECT().GetWithdrawals(correctUserID, gomock.Any()).Return([]entities.WithdrawalData{
+					storage.EXPECT().GetWithdrawals(gomock.Any(), correctUserID).Return([]entities.WithdrawalData{
 						{
 							OrderNum:    correctOrderID,
 							Sum:         correctSum,
@@ -98,7 +98,7 @@ func TestHandler_GetWithdrawals(t *testing.T) {
 				Logger: *sugared,
 				Storage: func() StorageInt {
 					storage := mock_handlers.NewMockStorageInt(controller)
-					storage.EXPECT().GetWithdrawals(correctUserID, gomock.Any()).Return([]entities.WithdrawalData{}, nil)
+					storage.EXPECT().GetWithdrawals(gomock.Any(), correctUserID).Return([]entities.WithdrawalData{}, nil)
 					return storage
 				}(),
 			},
@@ -131,7 +131,7 @@ func TestHandler_GetWithdrawals(t *testing.T) {
 				Logger: *sugared,
 				Storage: func() StorageInt {
 					storage := mock_handlers.NewMockStorageInt(controller)
-					storage.EXPECT().GetWithdrawals(correctUserID, gomock.Any()).Return([]entities.WithdrawalData{}, errors.New("some test error"))
+					storage.EXPECT().GetWithdrawals(gomock.Any(), correctUserID).Return([]entities.WithdrawalData{}, errors.New("some test error"))
 					return storage
 				}(),
 			},

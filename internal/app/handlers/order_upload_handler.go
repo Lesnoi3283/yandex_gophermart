@@ -51,7 +51,7 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	
+
 	//check with Luna`s alg
 	orderNum := string(bodyBytes)
 	ok, err := checkWithLuna(orderNum)
@@ -89,7 +89,7 @@ func (h *Handler) OrderUploadHandler(w http.ResponseWriter, r *http.Request) {
 		UploadedAt: entities.TimeRFC3339{Time: time.Now()},
 	}
 
-	err = h.Storage.SaveNewOrder(newOrder, r.Context())
+	err = h.Storage.SaveNewOrder(r.Context(), newOrder)
 	if errors.Is(err, gophermart_errors.MakeErrThisOrderWasUploadedByDifferentUser()) {
 		h.Logger.Infof("this order was already uploaded by different user")
 		w.WriteHeader(http.StatusConflict)

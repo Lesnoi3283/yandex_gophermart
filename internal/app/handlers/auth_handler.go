@@ -28,7 +28,7 @@ func (h *Handler) AuthUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//checking user
-	uID, err := h.Storage.GetUserIDWithCheck(uData.Login, uData.Password, r.Context())
+	uID, err := h.Storage.GetUserIDWithCheck(r.Context(), uData.Login, uData.Password)
 	if errors.Is(err, g_errors.MakeErrWrongLoginOrPassword()) {
 		h.Logger.Warnf("auth error: %v", err.Error())
 		w.WriteHeader(http.StatusUnauthorized)

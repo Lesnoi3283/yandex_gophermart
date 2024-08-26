@@ -68,7 +68,7 @@ func TestHandler_OrdersListHandler(t *testing.T) {
 				Logger: *sugarLogger,
 				Storage: func() StorageInt {
 					storage := mock_handlers.NewMockStorageInt(controller)
-					storage.EXPECT().GetOrdersList(1, gomock.Any()).Return(correctOrdersList, nil)
+					storage.EXPECT().GetOrdersList(gomock.Any(), 1).Return(correctOrdersList, nil)
 					return storage
 				}(),
 			},
@@ -85,7 +85,7 @@ func TestHandler_OrdersListHandler(t *testing.T) {
 				Logger: *sugarLogger,
 				Storage: func() StorageInt {
 					storage := mock_handlers.NewMockStorageInt(controller)
-					storage.EXPECT().GetOrdersList(1, gomock.Any()).Return(make([]entities.OrderData, 0), nil)
+					storage.EXPECT().GetOrdersList(gomock.Any(), 1).Return(make([]entities.OrderData, 0), nil)
 					return storage
 				}(),
 			},

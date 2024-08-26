@@ -24,7 +24,7 @@ func (h *Handler) GetBalanceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//getting balance from db
-	balance, err := h.Storage.GetBalance(userIDInt, r.Context())
+	balance, err := h.Storage.GetBalance(r.Context(), userIDInt)
 	if err != nil {
 		h.Logger.Errorf("error while getting balance from db: %v", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)

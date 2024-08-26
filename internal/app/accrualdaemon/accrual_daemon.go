@@ -21,9 +21,9 @@ const (
 )
 
 type UnfinishedOrdersStorageInt interface {
-	UpdateOrder(orderData entities.OrderData, ctx context.Context) error
+	UpdateOrder(ctx context.Context, orderData entities.OrderData) error
 	GetUnfinishedOrdersList(ctx context.Context) ([]entities.OrderData, error)
-	AddToBalance(userID int, amount float64, ctx context.Context) error
+	//AddToBalance(ctx context.Context, userID int, amount float64) error
 }
 
 type respData struct {
@@ -88,7 +88,7 @@ func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage 
 					order := orders[i]
 					order.Status = data.Status
 					order.Accrual = data.Accrual
-					err = storage.UpdateOrder(order, ctx)
+					err = storage.UpdateOrder(ctx, order)
 					if err != nil {
 						logger.Errorf(" err: %v", err.Error())
 						i++

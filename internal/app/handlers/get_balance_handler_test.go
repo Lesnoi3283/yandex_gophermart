@@ -54,7 +54,7 @@ func TestHandler_GetBalanceHandler(t *testing.T) {
 				Logger: *sugarLogger,
 				Storage: func() StorageInt {
 					storage := mock_handlers.NewMockStorageInt(controller)
-					storage.EXPECT().GetBalance(1, gomock.Any()).Return(correctBalance, nil)
+					storage.EXPECT().GetBalance(gomock.Any(), 1).Return(correctBalance, nil)
 					return storage
 				}(),
 			},

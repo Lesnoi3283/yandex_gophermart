@@ -46,7 +46,7 @@ func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//withdraw from db
-	err = h.Storage.WithdrawFromBalance(userIDInt, data.OrderNum, data.Sum, r.Context())
+	err = h.Storage.WithdrawFromBalance(r.Context(), userIDInt, data.OrderNum, data.Sum)
 	if errors.Is(err, gophermarterrors.MakeErrNotEnoughPoints()) {
 		h.Logger.Debugf("Not enough money, err: %v", err)
 		w.WriteHeader(http.StatusPaymentRequired)

@@ -36,7 +36,7 @@ func (m *MockStorageInt) EXPECT() *MockStorageIntMockRecorder {
 }
 
 // AddToBalance mocks base method.
-func (m *MockStorageInt) AddToBalance(arg0 int, arg1 float64, arg2 context.Context) error {
+func (m *MockStorageInt) AddToBalance(arg0 context.Context, arg1 int, arg2 float64) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddToBalance", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
@@ -50,7 +50,7 @@ func (mr *MockStorageIntMockRecorder) AddToBalance(arg0, arg1, arg2 interface{})
 }
 
 // GetBalance mocks base method.
-func (m *MockStorageInt) GetBalance(arg0 int, arg1 context.Context) (entities.BalanceData, error) {
+func (m *MockStorageInt) GetBalance(arg0 context.Context, arg1 int) (entities.BalanceData, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBalance", arg0, arg1)
 	ret0, _ := ret[0].(entities.BalanceData)
@@ -65,7 +65,7 @@ func (mr *MockStorageIntMockRecorder) GetBalance(arg0, arg1 interface{}) *gomock
 }
 
 // GetOrdersList mocks base method.
-func (m *MockStorageInt) GetOrdersList(arg0 int, arg1 context.Context) ([]entities.OrderData, error) {
+func (m *MockStorageInt) GetOrdersList(arg0 context.Context, arg1 int) ([]entities.OrderData, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetOrdersList", arg0, arg1)
 	ret0, _ := ret[0].([]entities.OrderData)
@@ -80,7 +80,7 @@ func (mr *MockStorageIntMockRecorder) GetOrdersList(arg0, arg1 interface{}) *gom
 }
 
 // GetUserIDWithCheck mocks base method.
-func (m *MockStorageInt) GetUserIDWithCheck(arg0, arg1 string, arg2 context.Context) (int, error) {
+func (m *MockStorageInt) GetUserIDWithCheck(arg0 context.Context, arg1, arg2 string) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserIDWithCheck", arg0, arg1, arg2)
 	ret0, _ := ret[0].(int)
@@ -95,7 +95,7 @@ func (mr *MockStorageIntMockRecorder) GetUserIDWithCheck(arg0, arg1, arg2 interf
 }
 
 // GetWithdrawals mocks base method.
-func (m *MockStorageInt) GetWithdrawals(arg0 int, arg1 context.Context) ([]entities.WithdrawalData, error) {
+func (m *MockStorageInt) GetWithdrawals(arg0 context.Context, arg1 int) ([]entities.WithdrawalData, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetWithdrawals", arg0, arg1)
 	ret0, _ := ret[0].([]entities.WithdrawalData)
@@ -110,7 +110,7 @@ func (mr *MockStorageIntMockRecorder) GetWithdrawals(arg0, arg1 interface{}) *go
 }
 
 // SaveNewOrder mocks base method.
-func (m *MockStorageInt) SaveNewOrder(arg0 entities.OrderData, arg1 context.Context) error {
+func (m *MockStorageInt) SaveNewOrder(arg0 context.Context, arg1 entities.OrderData) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SaveNewOrder", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -124,7 +124,7 @@ func (mr *MockStorageIntMockRecorder) SaveNewOrder(arg0, arg1 interface{}) *gomo
 }
 
 // SaveUser mocks base method.
-func (m *MockStorageInt) SaveUser(arg0, arg1, arg2 string, arg3 context.Context) (int, error) {
+func (m *MockStorageInt) SaveUser(arg0 context.Context, arg1, arg2, arg3 string) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SaveUser", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(int)
@@ -139,7 +139,7 @@ func (mr *MockStorageIntMockRecorder) SaveUser(arg0, arg1, arg2, arg3 interface{
 }
 
 // UpdateOrder mocks base method.
-func (m *MockStorageInt) UpdateOrder(arg0 entities.OrderData, arg1 context.Context) error {
+func (m *MockStorageInt) UpdateOrder(arg0 context.Context, arg1 entities.OrderData) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateOrder", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -153,7 +153,7 @@ func (mr *MockStorageIntMockRecorder) UpdateOrder(arg0, arg1 interface{}) *gomoc
 }
 
 // WithdrawFromBalance mocks base method.
-func (m *MockStorageInt) WithdrawFromBalance(arg0 int, arg1 string, arg2 float64, arg3 context.Context) error {
+func (m *MockStorageInt) WithdrawFromBalance(arg0 context.Context, arg1 int, arg2 string, arg3 float64) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "WithdrawFromBalance", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)

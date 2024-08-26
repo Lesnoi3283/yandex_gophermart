@@ -24,7 +24,7 @@ func (h *Handler) GetWithdrawals(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//get withdrawals
-	withdrawals, err := h.Storage.GetWithdrawals(userIDInt, r.Context())
+	withdrawals, err := h.Storage.GetWithdrawals(r.Context(), userIDInt)
 	if err != nil {
 		h.Logger.Errorf("cant get withdrawals from db, err: %v", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)

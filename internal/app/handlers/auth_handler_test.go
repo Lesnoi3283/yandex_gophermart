@@ -63,7 +63,7 @@ func TestHandler_AuthUser(t *testing.T) {
 				Logger: *sugarLogger,
 				Storage: func() StorageInt {
 					storage := mock_handlers.NewMockStorageInt(controller)
-					storage.EXPECT().GetUserIDWithCheck(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(login string, password string, ctx context.Context) (int, error) {
+					storage.EXPECT().GetUserIDWithCheck(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, login string, password string) (int, error) {
 						if (login == testUser.Login) && (password == testUser.Password) {
 							return testUser.ID, nil
 						} else {
@@ -108,7 +108,7 @@ func TestHandler_AuthUser(t *testing.T) {
 				Logger: *sugarLogger,
 				Storage: func() StorageInt {
 					storage := mock_handlers.NewMockStorageInt(controller)
-					storage.EXPECT().GetUserIDWithCheck(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(login string, password string, ctx context.Context) (int, error) {
+					storage.EXPECT().GetUserIDWithCheck(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, login string, password string) (int, error) {
 						return 0, gophermart_errors.MakeErrWrongLoginOrPassword()
 					})
 					return storage

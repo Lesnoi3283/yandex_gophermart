@@ -25,7 +25,7 @@ func (h *Handler) OrdersListHandler(w http.ResponseWriter, r *http.Request) {
 
 	//todo: context первым
 	//getting orders from db
-	orders, err := h.Storage.GetOrdersList(userIDInt, r.Context())
+	orders, err := h.Storage.GetOrdersList(r.Context(), userIDInt)
 	if err != nil {
 		h.Logger.Errorf("error while getting orders list from db: %v", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)

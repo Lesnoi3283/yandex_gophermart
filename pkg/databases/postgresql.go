@@ -70,7 +70,7 @@ func (p *Postgresql) SetTables() error {
 	return nil
 }
 
-func (p *Postgresql) SaveUser(login string, passwordHash string, passwordSalt string, ctx context.Context) (int, error) {
+func (p *Postgresql) SaveUser(ctx context.Context, login string, passwordHash string, passwordSalt string) (int, error) {
 	var userID int
 
 	err := p.store.QueryRowContext(ctx, `
@@ -92,7 +92,7 @@ func (p *Postgresql) SaveUser(login string, passwordHash string, passwordSalt st
 
 // CheckUser finds an id, password and password_salt by login, then checks password (using "security" package).
 // Returns an ID if password is correct, "0" + "error" if not
-func (p *Postgresql) GetUserIDWithCheck(login string, password string, ctx context.Context) (int, error) {
+func (p *Postgresql) GetUserIDWithCheck(ctx context.Context, login string, password string) (int, error) {
 	var userID int
 	var passwordHash, passwordSalt string
 
@@ -113,7 +113,7 @@ func (p *Postgresql) GetUserIDWithCheck(login string, password string, ctx conte
 	return userID, nil
 }
 
-func (p *Postgresql) SaveNewOrder(orderData entities.OrderData, ctx context.Context) error {
+func (p *Postgresql) SaveNewOrder(ctx context.Context, orderData entities.OrderData) error {
 	var userID int
 	time := orderData.UploadedAt.Time
 
@@ -145,7 +145,7 @@ func (p *Postgresql) SaveNewOrder(orderData entities.OrderData, ctx context.Cont
 }
 
 // UpdateOrder updates an order and increases users`s balance if order status is "PROCESSED"
-func (p *Postgresql) UpdateOrder(orderData entities.OrderData, ctx context.Context) error {
+func (p *Postgresql) UpdateOrder(ctx context.Context, orderData entities.OrderData) error {
 	tx, err := p.store.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("cant begin a transaction, err: %w", err)
@@ -181,7 +181,7 @@ func (p *Postgresql) UpdateOrder(orderData entities.OrderData, ctx context.Conte
 	return nil
 }
 
-func (p *Postgresql) GetOrdersList(userID int, ctx context.Context) ([]entities.OrderData, error) {
+func (p *Postgresql) GetOrdersList(ctx context.Context, userID int) ([]entities.OrderData, error) {
 	rows, err := p.store.QueryContext(ctx, `
 		SELECT id, user_id, order_number, status, accural, uploaded_at 
 		FROM orders 
@@ -231,7 +231,7 @@ func (p *Postgresql) GetUnfinishedOrdersList(ctx context.Context) ([]entities.Or
 	return orders, nil
 }
 
-func (p *Postgresql) GetBalance(userID int, ctx context.Context) (entities.BalanceData, error) {
+func (p *Postgresql) GetBalance(ctx context.Context, userID int) (entities.BalanceData, error) {
 	var balance entities.BalanceData
 
 	// Current balance
@@ -255,7 +255,7 @@ func (p *Postgresql) GetBalance(userID int, ctx context.Context) (entities.Balan
 	return balance, nil
 }
 
-func (p *Postgresql) AddToBalance(userID int, amount float64, ctx context.Context) error {
+func (p *Postgresql) AddToBalance(ctx context.Context, userID int, amount float64) error {
 	_, err := p.store.ExecContext(ctx, `
 		INSERT INTO balances (user_id, points) 
 		VALUES ($1, $2) 
@@ -265,7 +265,7 @@ func (p *Postgresql) AddToBalance(userID int, amount float64, ctx context.Contex
 	return err
 }
 
-func (p *Postgresql) WithdrawFromBalance(userID int, orderNum string, amount float64, ctx context.Context) error {
+func (p *Postgresql) WithdrawFromBalance(ctx context.Context, userID int, orderNum string, amount float64) error {
 	tx, err := p.store.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -310,7 +310,7 @@ func (p *Postgresql) WithdrawFromBalance(userID int, orderNum string, amount flo
 	return tx.Commit()
 }
 
-func (p *Postgresql) GetWithdrawals(userID int, ctx context.Context) ([]entities.WithdrawalData, error) {
+func (p *Postgresql) GetWithdrawals(ctx context.Context, userID int) ([]entities.WithdrawalData, error) {
 	rows, err := p.store.QueryContext(ctx, `
 		SELECT order_num, amount, processed_at 
 		FROM withdrawals WHERE user_id = $1`, userID)

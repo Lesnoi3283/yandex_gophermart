@@ -9,7 +9,6 @@ import (
 	"go.uber.org/zap/zaptest"
 	"net/http"
 	"net/http/httptest"
-	"sync"
 	"testing"
 	mock_handlers "yandex_gophermart/internal/app/handlers/mocks"
 	"yandex_gophermart/internal/app/middlewares"
@@ -29,9 +28,6 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 	correctUserID := 2
 	correctOrderNumBytes := []byte("12345678903")
 
-	//wait group set
-	wg := sync.WaitGroup{}
-
 	//tests set
 	type fields struct {
 		Logger  zap.SugaredLogger
@@ -46,29 +42,23 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 		fields     fields
 		args       args
 		statusWant int
-		wgAmout    int
 	}{
-		//{
-		//	name: "normal",
-		//	fields: fields{
-		//		Logger: *sugarLogger,
-		//		Storage: func() StorageInt {
-		//			storage := mock_handlers.NewMockStorageInt(controller)
-		//			storage.EXPECT().SaveNewOrder(gomock.Any(), gomock.Any()).Return(nil)
-		//			storage.EXPECT().UpdateOrder(gomock.Any(), gomock.Any()).DoAndReturn(func(order entities.OrderData, ctx context.Context) error {
-		//				wg.Done()
-		//				return errors.New("some test error")
-		//			})
-		//			return storage
-		//		}(),
-		//	},
-		//	args: args{
-		//		w: httptest.NewRecorder(),
-		//		r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderNumBytes)).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
-		//	},
-		//	statusWant: http.StatusAccepted,
-		//	wgAmout:    1,
-		//},
+		{
+			name: "normal",
+			fields: fields{
+				Logger: *sugarLogger,
+				Storage: func() StorageInt {
+					storage := mock_handlers.NewMockStorageInt(controller)
+					storage.EXPECT().SaveNewOrder(gomock.Any(), gomock.Any()).Return(nil)
+					return storage
+				}(),
+			},
+			args: args{
+				w: httptest.NewRecorder(),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderNumBytes)).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
+			},
+			statusWant: http.StatusAccepted,
+		},
 		{
 			name: "was already uploaded",
 			fields: fields{
@@ -84,7 +74,6 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderNumBytes)).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusOK,
-			wgAmout:    0,
 		},
 		{
 			name: "conflict",
@@ -101,24 +90,22 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderNumBytes)).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusConflict,
-			wgAmout:    0,
 		},
-		//{
-		//	name: "broken order id",
-		//	fields: fields{
-		//		Logger: *sugarLogger,
-		//		Storage: func() StorageInt {
-		//			storage := mock_handlers.NewMockStorageInt(controller)
-		//			return storage
-		//		}(),
-		//	},
-		//	args: args{
-		//		w: httptest.NewRecorder(),
-		//		r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader([]byte("123sometext123"))).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
-		//	},
-		//	statusWant: http.StatusUnprocessableEntity,
-		//	wgAmout:    0,
-		//},
+		{
+			name: "broken order id",
+			fields: fields{
+				Logger: *sugarLogger,
+				Storage: func() StorageInt {
+					storage := mock_handlers.NewMockStorageInt(controller)
+					return storage
+				}(),
+			},
+			args: args{
+				w: httptest.NewRecorder(),
+				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader([]byte("123sometext123"))).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
+			},
+			statusWant: http.StatusBadRequest,
+		},
 		{
 			name: "no order id",
 			fields: fields{
@@ -133,7 +120,6 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", nil).WithContext(context.WithValue(context.Background(), middlewares.UserIDContextKey, correctUserID)),
 			},
 			statusWant: http.StatusBadRequest,
-			wgAmout:    0,
 		},
 		{
 			name: "no user id",
@@ -149,7 +135,6 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 				r: httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewReader(correctOrderNumBytes)),
 			},
 			statusWant: http.StatusUnauthorized,
-			wgAmout:    0,
 		},
 	}
 	for _, tt := range tests {
@@ -159,8 +144,6 @@ func TestHandler_OrderUploadHandler(t *testing.T) {
 				Storage: tt.fields.Storage,
 			}
 			h.OrderUploadHandler(tt.args.w, tt.args.r)
-			wg.Add(tt.wgAmout)
-			wg.Wait()
 
 			assert.Equal(t, tt.statusWant, tt.args.w.Code, "wrong status code")
 		})

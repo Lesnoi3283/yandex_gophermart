@@ -65,7 +65,7 @@ func TestHandler_RegisterUser(t *testing.T) {
 				Logger: *sugarLogger,
 				Storage: func() StorageInt {
 					storage := mock_handlers.NewMockStorageInt(controller)
-					storage.EXPECT().SaveUser(testUser.Login, gomock.Any(), gomock.Any(), gomock.Any()).Return(testUser.ID, nil)
+					storage.EXPECT().SaveUser(gomock.Any(), testUser.Login, gomock.Any(), gomock.Any()).Return(testUser.ID, nil)
 					return storage
 				}(),
 				JWTH: func() JWTHelperInt {
@@ -86,7 +86,7 @@ func TestHandler_RegisterUser(t *testing.T) {
 				Logger: *sugarLogger,
 				Storage: func() StorageInt {
 					storage := mock_handlers.NewMockStorageInt(controller)
-					storage.EXPECT().SaveUser(testUser.Login, gomock.Any(), gomock.Any(), gomock.Any()).Return(0, gophermarterrors.MakeErrUserAlreadyExists())
+					storage.EXPECT().SaveUser(gomock.Any(), testUser.Login, gomock.Any(), gomock.Any()).Return(0, gophermarterrors.MakeErrUserAlreadyExists())
 					return storage
 				}(),
 				JWTH: func() JWTHelperInt {
@@ -125,7 +125,7 @@ func TestHandler_RegisterUser(t *testing.T) {
 				Logger: *sugarLogger,
 				Storage: func() StorageInt {
 					storage := mock_handlers.NewMockStorageInt(controller)
-					storage.EXPECT().SaveUser(testUser.Login, gomock.Any(), gomock.Any(), gomock.Any()).Return(0, errors.New("some test error"))
+					storage.EXPECT().SaveUser(gomock.Any(), testUser.Login, gomock.Any(), gomock.Any()).Return(0, errors.New("some test error"))
 					return storage
 				}(),
 				JWTH: func() JWTHelperInt {

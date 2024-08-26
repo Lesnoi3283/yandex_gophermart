@@ -34,7 +34,7 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	uID, err := h.Storage.SaveUser(uData.Login, security.HashPassword(uData.Password, passwordSalt), passwordSalt, r.Context())
+	uID, err := h.Storage.SaveUser(r.Context(), uData.Login, security.HashPassword(uData.Password, passwordSalt), passwordSalt)
 	if errors.Is(err, g_errors.MakeErrUserAlreadyExists()) {
 		h.Logger.Warnf("user create error: %v", err.Error())
 		w.WriteHeader(http.StatusConflict)
