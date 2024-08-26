@@ -94,7 +94,6 @@ func main() {
 		if errSh != nil {
 			sugar.Fatalf("Tryed to shutdown server carefully, but got en error. Shutting down with Fatalf(). Err: %v", errSh.Error())
 		}
-		return
 	}(mainCtx, &wg)
 
 	wg.Wait()
