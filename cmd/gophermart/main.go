@@ -14,7 +14,6 @@ import (
 )
 
 func main() {
-
 	//conf
 	cfg := config.Config{}
 	cfg.Configure()
