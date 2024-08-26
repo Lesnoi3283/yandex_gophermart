@@ -96,12 +96,12 @@ func AccrualCheckDaemon(ctx context.Context, logger *zap.SugaredLogger, storage 
 					}
 
 					//increase users`s balance
-					err = storage.AddToBalance(order.UserID, order.Accrual, ctx)
-					if err != nil {
-						logger.Errorf("error while increasing users balance in a storage: %v", err.Error())
-						i++
-						continue
-					}
+					//err = storage.AddToBalance(order.UserID, order.Accrual, ctx)
+					//if err != nil {
+					//	logger.Errorf("error while increasing users balance in a storage: %v", err.Error())
+					//	i++
+					//	continue
+					//}
 					i++
 				}
 

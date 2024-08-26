@@ -144,13 +144,41 @@ func (p *Postgresql) SaveNewOrder(orderData entities.OrderData, ctx context.Cont
 	return nil
 }
 
+// UpdateOrder updates an order and increases users`s balance if order status is "PROCESSED"
 func (p *Postgresql) UpdateOrder(orderData entities.OrderData, ctx context.Context) error {
-	_, err := p.store.ExecContext(ctx, `
+	tx, err := p.store.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("cant begin a transaction, err: %w", err)
+	}
+
+	_, err = tx.ExecContext(ctx, `
 		UPDATE orders 
 		SET status = $1, accural = $2, uploaded_at = $3
 		WHERE id = $4 AND user_id = $5`,
 		orderData.Status, orderData.Accrual, orderData.UploadedAt.Time, orderData.ID, orderData.UserID)
-	return err
+
+	if err != nil {
+		return fmt.Errorf("error while updating an order: %w", err)
+	}
+
+	if orderData.Status == entities.OrderStatusProcessed {
+		_, err = tx.ExecContext(ctx, `
+		INSERT INTO balances (user_id, points) 
+		VALUES ($1, $2) 
+		ON CONFLICT (user_id) 
+		DO UPDATE SET points = balances.points + $2`,
+			orderData.UserID, orderData.Accrual)
+		if err != nil {
+			return fmt.Errorf("cant increase users balance, err: %w", err)
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error while committing transaction, %w", err)
+	}
+
+	return nil
 }
 
 func (p *Postgresql) GetOrdersList(userID int, ctx context.Context) ([]entities.OrderData, error) {
